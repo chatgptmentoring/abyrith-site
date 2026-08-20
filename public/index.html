@@ -59,7 +59,7 @@
     <a href="#census">The Census</a>
     <a href="#archive">The Archive</a>
   </nav>
-  <a class="btn btn--ghost nav__cta" href="#census">Claim your Mark</a>
+  <a class="btn btn--ghost nav__cta" href="#preorder">Preorder</a>
 </header>
 
 <main id="top">
@@ -84,18 +84,31 @@
       <p class="hero__sub reveal" data-d="2">The Fracturing of Light</p>
 
       <p class="hero__line reveal" data-d="3">
-        For five hundred rotations the Light has told every soul exactly who they are.<br>
-        <em>It is beginning to forget.</em>
+        The Light burns a purpose into the skin of every child it names.<br>
+        <em>Those it never named are vanishing — and no one is counting.</em>
       </p>
 
-      <div class="hero__cta reveal" data-d="4">
-        <a class="btn btn--solid" href="#census">Claim your Mark</a>
+      <form class="hero__form reveal" data-d="4" id="heroForm" novalidate>
+        <p class="hero__form-label">
+          <span class="hero__form-dot" aria-hidden="true"></span>Preorder opens soon — the list goes first
+        </p>
+        <div class="field-row">
+          <input id="heroEmail" type="email" name="email" inputmode="email" autocomplete="email"
+                 maxlength="254" placeholder="your@email.com" required spellcheck="false"
+                 aria-label="Your email address">
+          <button class="btn btn--solid" type="submit" id="heroBtn">Reserve my copy</button>
+        </div>
+        <p class="form-msg" id="heroMsg" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="hero__cta reveal" data-d="5">
         <a class="btn btn--ghost" href="#trailer">
           <span class="btn__play" aria-hidden="true"></span>Watch the trailer
         </a>
+        <a class="hero__alt" href="#census">Or see if the Light has you on record</a>
       </div>
 
-      <p class="hero__author reveal" data-d="5">A novel by <strong>Dejan Davcevski</strong></p>
+      <p class="hero__author reveal" data-d="6">A novel by <strong>Dejan Davcevski</strong></p>
     </div>
 
     <div class="hero__cover reveal" data-d="3">
@@ -278,23 +291,34 @@
     </p>
 
     <div class="cards" id="cards"></div>
+
+    <div class="places-head reveal">
+      <p class="kicker">Surveyed territory</p>
+      <h3 class="places-title">Places on the Ring</h3>
+      <p class="places-intro">
+        Six locations the Archive still holds maps for. The world turns; the Light crosses
+        it like a tide. These are the stops along the way.
+      </p>
+    </div>
+
+    <div class="places" id="places"></div>
   </div>
 </section>
 
 <!-- ══════════════════ CLOSING CTA ══════════════════ -->
-<section class="close" id="close">
+<section class="close" id="preorder">
   <div class="wrap wrap--narrow">
-    <h2 class="display reveal">Be first through the gate</h2>
+    <h2 class="display reveal">Reserve your copy</h2>
     <p class="close__copy reveal">
-      <em>Abyrith: The Fracturing of Light</em> arrives soon. Put your name on the list and
-      you&rsquo;ll know the moment it does — the opening chapter, the release date, and the
-      first look at what waits past the Rift.
+      <em>Abyrith: The Fracturing of Light</em> opens for preorder soon. Everyone on this
+      list gets the link first — along with the opening chapter and the release date
+      before it goes public.
     </p>
     <form id="footerForm" class="close__form reveal" novalidate>
       <div class="field-row">
         <input id="footerEmail" type="email" name="email" inputmode="email" autocomplete="email"
                maxlength="254" placeholder="your@email.com" required spellcheck="false">
-        <button class="btn btn--solid" type="submit" id="footerBtn">Join the watch</button>
+        <button class="btn btn--solid" type="submit" id="footerBtn">Reserve my copy</button>
       </div>
       <p class="form-msg" id="footerMsg" role="status" aria-live="polite"></p>
     </form>

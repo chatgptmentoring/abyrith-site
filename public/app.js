@@ -198,19 +198,109 @@ const RECORDS = [
   {
     file: "REC-0009",
     slug: "axiom",
-    name: "Axiom",
-    role: "Classification refused",
+    name: "▚▚▚▚▚",
+    role: "Record corrupted",
     sealed: true,
-    text: "The Table cannot index it. It registers no Mark, no signature, and no cessation event. It walks at the head of something enormous, and on at least one occasion it looked directly at a man holding an unremarkable grey sword — and chose to walk past him.",
+    corrupt: true,
+    // Nothing about this one is written down in plain speech. The Table falls
+    // back to Erythaic and the glyphs will not hold still.
+    text: "",
   },
 ];
+
+/* Erythaic — the Ancient Tongue, written in the Old Italic glyphs the
+   Erythae Lamentations use. Decorative nonsense: it does not decode. */
+const ERYTHAIC = [..."𐌀𐌁𐌂𐌃𐌄𐌅𐌆𐌇𐌈𐌉𐌊𐌋𐌌𐌍𐌎𐌏𐌐𐌑𐌒𐌓𐌔𐌕𐌖𐌗𐌘𐌙𐌚"];
+const SCARS = [..."▚▞▓▒░█▙▟"];
+
+function erythaic(words = 26) {
+  const pick = (a) => a[(Math.random() * a.length) | 0];
+  const out = [];
+  for (let i = 0; i < words; i++) {
+    const len = 2 + ((Math.random() * 5) | 0);
+    let w = "";
+    for (let j = 0; j < len; j++) {
+      w += Math.random() < 0.08 ? pick(SCARS) : pick(ERYTHAIC);
+    }
+    out.push(w);
+  }
+  return out.join(" ");
+}
+
+const PLACES = [
+  {
+    slug: "aurelion-kingdom",
+    name: "Aurelion",
+    tag: "Seat of the Crown",
+    text: "White walls rising like teeth against the curve of the world. Every road on the Ring eventually points here, and every number the Archive keeps is measured from it.",
+  },
+  {
+    slug: "aurellion-region",
+    name: "The Serpent Roads",
+    tag: "Open country",
+    text: "Fourteen rotations of wind and stone between the outposts. Uneventful, the patrol reports say. Exhausting, say the men who walk them.",
+  },
+  {
+    slug: "oakhaven",
+    name: "Oakhaven",
+    tag: "Trade hub",
+    text: "A day and a half from the capital by the Serpent Road. Everything passes through Oakhaven eventually — goods, rumour, and people who would rather not be counted.",
+  },
+  {
+    slug: "oakhaven-lumentree",
+    name: "The Lumentree",
+    tag: "Oakhaven, outer ring",
+    wide: true,
+    text: "It held light long before anyone thought to build beneath it. The town grew around the tree for the oldest reason there is: nobody wants to meet the dark without something that remembers the day.",
+  },
+  {
+    slug: "kaelmarch",
+    name: "Kaelmarch",
+    tag: "Records incomplete",
+    text: "Very little survives in the Archive about Kaelmarch. Vira has stopped assuming that sort of gap is an accident.",
+  },
+  {
+    slug: "solkar-city",
+    name: "Solkar",
+    tag: "Undefined population: 0",
+    text: "The census returns a clean zero here, every cycle, without fail. No city on the Ring has ever returned a clean zero. That is precisely what makes the number worth reading twice.",
+  },
+];
+
+(function places() {
+  const grid = $("#places");
+  if (!grid) return;
+  grid.innerHTML = PLACES.map(
+    (p, i) => `
+    <figure class="place${p.wide ? " place--wide" : ""} reveal" data-d="${i % 3}">
+      <span class="place__frame">
+        <img src="/assets/places/${p.slug}.webp" alt="${p.name}" loading="lazy" decoding="async">
+      </span>
+      <figcaption>
+        <p class="place__tag">${p.tag}</p>
+        <h4 class="place__name">${p.name}</h4>
+        <p class="place__text">${p.text}</p>
+      </figcaption>
+    </figure>`
+  ).join("");
+
+  const io = new IntersectionObserver(
+    (es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      setTimeout(() => e.target.classList.add("in"), (+e.target.dataset.d || 0) * 90);
+      io.unobserve(e.target);
+    }),
+    { threshold: 0.08 }
+  );
+  $$(".place", grid).forEach((el) => io.observe(el));
+})();
 
 (function archive() {
   const grid = $("#cards");
   grid.innerHTML = RECORDS.map(
     (r, i) => `
     <button class="card${r.sealed ? " card--sealed" : ""} reveal" data-i="${i}" data-d="${i % 4}" type="button">
-      <img src="/assets/characters/${r.slug}.webp" alt="Archive record: ${r.name}" loading="lazy" decoding="async" width="700" height="1050">
+      <img src="/assets/characters/${r.slug}.webp" alt="${r.corrupt ? "Corrupted archive record" : "Archive record: " + r.name}" loading="lazy" decoding="async" width="700" height="1050">
       <span class="card__veil"></span>
       ${r.sealed ? '<span class="card__seal">SEALED</span>' : ""}
       <span class="card__meta">
@@ -234,20 +324,41 @@ const RECORDS = [
   const lb = $("#lb");
   let lastFocus = null;
 
+  let glitch = null;
+  const stopGlitch = () => { if (glitch) { clearInterval(glitch); glitch = null; } };
+
   const open = (i) => {
     const r = RECORDS[i];
+    stopGlitch();
     $("#lbImg").src = `/assets/characters/${r.slug}.webp`;
-    $("#lbImg").alt = `Archive record: ${r.name}`;
+    $("#lbImg").alt = r.corrupt ? "Corrupted archive record" : `Archive record: ${r.name}`;
     $("#lbFile").textContent = `${r.file} · ${r.sealed ? "SEALED" : "RECOVERED"}`;
-    $("#lbName").textContent = r.name;
     $("#lbRole").textContent = r.role;
-    $("#lbText").textContent = r.text;
+    lb.classList.toggle("is-corrupt", !!r.corrupt);
+
+    if (r.corrupt) {
+      // The Table has no plain-speech entry for this one. It falls back to
+      // Erythaic, and the glyphs refuse to settle.
+      const name = $("#lbName");
+      const text = $("#lbText");
+      const paint = () => {
+        name.textContent = erythaic(1);
+        text.textContent = erythaic(30);
+      };
+      paint();
+      if (!REDUCED) glitch = setInterval(paint, 140);
+    } else {
+      $("#lbName").textContent = r.name;
+      $("#lbText").textContent = r.text;
+    }
+
     lastFocus = document.activeElement;
     lb.hidden = false;
     document.body.style.overflow = "hidden";
     $("#lbClose").focus();
   };
   const close = () => {
+    stopGlitch();
     lb.hidden = true;
     document.body.style.overflow = "";
     if (lastFocus) lastFocus.focus();
@@ -370,7 +481,7 @@ function sigil(h, broken) {
         `The Table finds human mass at your position and no Light-signature above it. ` +
         `To the System you are a cleaning error. <em>And the cleaning errors are going quiet.</em>`;
       $("#signupPitch").textContent =
-        "Nobody is keeping your record. So keep it yourself — and be first through the gate when Abyrith opens.";
+        "Nobody is keeping your record. Keep it yourself — leave your address and you get the preorder link before it goes public.";
     } else {
       $("#resultStat").textContent = "COMPLETE";
       $("#verdict").textContent = "DEFINED";
@@ -380,7 +491,7 @@ function sigil(h, broken) {
         `You are recorded, anchored and accounted for. The Light knows where you live. ` +
         `Hold on to that — it was true for Erik Swordstrong too.`;
       $("#signupPitch").textContent =
-        "Your record stands. Keep it current — and be first through the gate when Abyrith opens.";
+        "Your record stands. Keep it current — leave your address and you get the preorder link before it goes public.";
     }
     show(2);
     $("#table").scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "center" });
@@ -463,8 +574,8 @@ function wireEmail(form, input, btn, msg, getMeta, hideOnDone) {
     try {
       const outcome = await subscribe(email, getMeta ? getMeta() : null);
       msg.textContent = outcome === "existing"
-        ? "You are already on the list. Your record stands."
-        : "Recorded. Watch your inbox — the gate opens soon.";
+        ? "You are already on the list. Your copy is reserved."
+        : "Reserved. You will get the preorder link before anyone else.";
       msg.classList.add("ok");
       form.reset();
       if (hideOnDone) setTimeout(() => $("#signup").classList.add("is-done"), 2400);
@@ -478,4 +589,5 @@ function wireEmail(form, input, btn, msg, getMeta, hideOnDone) {
   });
 }
 
+wireEmail($("#heroForm"), $("#heroEmail"), $("#heroBtn"), $("#heroMsg"), null, false);
 wireEmail($("#footerForm"), $("#footerEmail"), $("#footerBtn"), $("#footerMsg"), null, false);
