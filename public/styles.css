@@ -180,6 +180,8 @@ em{ font-style:italic; }
   animation:seam 4.5s ease-in-out infinite;
 }
 @keyframes seam{ 0%,100%{opacity:.85; filter:blur(0)} 50%{opacity:1; filter:blur(1.5px)} }
+/* Offset the second seam so the two do not pulse in lockstep. */
+.hero__seam ~ .hero__seam{ animation-delay:-1.9s; }
 
 .hero__sub{
   font-family:var(--display); font-size:clamp(.82rem,2vw,1.22rem); font-weight:500;
