@@ -136,12 +136,6 @@ em{ font-style:italic; }
 /* ── Hero ───────────────────────────────────────────────── */
 .hero{ min-height:100svh; display:flex; flex-direction:column; justify-content:center; padding:8rem 0 5rem; overflow:hidden; }
 .hero__rift{ position:absolute; inset:0; z-index:0; pointer-events:none; }
-.rift__beam{
-  position:absolute; left:50%; top:-10%; width:2px; height:120%; transform:translateX(-50%);
-  background:linear-gradient(180deg,transparent,var(--rift-hot) 18%,#fff 46%,var(--rift) 74%,transparent);
-  filter:blur(1px); opacity:.55; animation:beam 6s ease-in-out infinite;
-}
-@keyframes beam{ 0%,100%{opacity:.42; transform:translateX(-50%) scaleX(1)} 50%{opacity:.75; transform:translateX(-50%) scaleX(2.2)} }
 .rift__glow{
   position:absolute; left:50%; top:50%; width:min(1100px,120vw); height:min(1100px,120vw);
   transform:translate(-50%,-50%);
@@ -167,8 +161,12 @@ em{ font-style:italic; }
 .eyebrow__dot{ width:5px; height:5px; border-radius:50%; background:var(--light); box-shadow:0 0 8px var(--light); animation:pulse 2.6s infinite; }
 
 .hero__title{
-  font-size:clamp(3.2rem,9.2vw,7.2rem); font-weight:900; letter-spacing:.02em; line-height:.92;
+  font-size:clamp(3.2rem,8.8vw,6.8rem); font-weight:900; letter-spacing:.02em; line-height:.92;
   display:flex; align-items:center; margin-bottom:.6rem;
+  /* The gradient is clipped to the glyphs, so it only paints inside this
+     box. max-content keeps the box exactly as wide as the word, otherwise
+     the tail of the H falls outside it and renders invisible. */
+  width:max-content;
   background:linear-gradient(175deg,#fff 0%,#ded8cc 38%,#8d867a 100%);
   -webkit-background-clip:text; background-clip:text; color:transparent;
   filter:drop-shadow(0 4px 34px rgba(0,0,0,.9));
@@ -235,7 +233,7 @@ em{ font-style:italic; }
   .hero__inner{ grid-template-columns:1fr; text-align:center; }
   .hero__copy{ order:2; }
   .hero__cover{ order:1; max-width:280px; margin-inline:auto; }
-  .hero__title{ justify-content:center; }
+  .hero__title{ justify-content:center; margin-inline:auto; }
   .hero__line{ margin-inline:auto; }
   .hero__cta{ justify-content:center; }
   .cover{ transform:none; }
