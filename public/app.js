@@ -26,6 +26,24 @@ const MOTION = HAS_ANIME && !REDUCED;
 // Headings split into characters, filled in once the fonts have settled.
 const SPLITS = new Map();
 
+/* Erythaic — the Ancient Tongue, in the Old Italic glyphs the Erythae
+   Lamentations use. Declared up here because both the word-drop and the
+   Archive's corrupted record need it. */
+const ERYTHAIC = [..."𐌀𐌁𐌂𐌃𐌄𐌅𐌆𐌇𐌈𐌉𐌊𐌋𐌌𐌍𐌎𐌏𐌐𐌑𐌒𐌓𐌔𐌕𐌖𐌗𐌘𐌙𐌚"];
+const SCARS = [..."▚▞▓▒░█▙▟"];
+function erythaic(words = 26) {
+  const pick = (a) => a[(Math.random() * a.length) | 0];
+  const out = [];
+  for (let i = 0; i < words; i++) {
+    let w = "";
+    for (let j = 0, len = 2 + ((Math.random() * 5) | 0); j < len; j++) {
+      w += Math.random() < 0.08 ? pick(SCARS) : pick(ERYTHAIC);
+    }
+    out.push(w);
+  }
+  return out.join(" ");
+}
+
 function playChars(h) {
   const chars = SPLITS.get(h);
   if (!chars || h.dataset.charsPlayed) return;
@@ -311,17 +329,68 @@ function watch(els) {
     }), { threshold: 0.35 }).observe(player);
   }
 
-  /* — ABYRITH resolves out of the Ancient Tongue. — */
+  /* — ABYRITH decodes out of the Ancient Tongue as you scroll toward it.
+       Scroll position drives how much of the word has resolved; the
+       letters still in Erythaic keep shimmering until they land. — */
   const drop = $(".word-drop__text");
-  if (drop && typeof scrambleText === "function") {
-    new IntersectionObserver((es, obs) => es.forEach((e) => {
-      if (!e.isIntersecting) return;
-      obs.disconnect();
-      animate(drop, {
-        innerHTML: scrambleText({ chars: "𐌀𐌁𐌂𐌃𐌄𐌅𐌆𐌇𐌈𐌉𐌊𐌋𐌌𐌍𐌎𐌏𐌐𐌑𐌒𐌓𐌔𐌕𐌖𐌗𐌘𐌙𐌚", revealRate: 0.34 }),
-        duration: 2200, ease: "linear",
+  if (drop && typeof onScroll === "function") {
+    const WORD = "ABYRITH";
+    const glyph = () => ERYTHAIC[(Math.random() * ERYTHAIC.length) | 0];
+    let progress = 0, inView = false, shimmer = null;
+
+    const paint = () => {
+      const done = Math.round(utils.clamp(progress, 0, 1) * WORD.length);
+      let html = "";
+      for (let i = 0; i < WORD.length; i++) {
+        html += i < done
+          ? `<span class="wd-on">${WORD[i]}</span>`
+          : `<span class="wd-off">${glyph()}</span>`;
+      }
+      drop.innerHTML = html;
+    };
+
+    drop.setAttribute("aria-hidden", "true");
+    const label = document.createElement("span");
+    label.className = "sr-only";
+    label.textContent = WORD;
+    drop.parentNode.insertBefore(label, drop);
+    paint();
+
+    // Progress is mapped straight from scroll position: 0 when the word
+    // first rises into view, 1 by the time it reaches the upper third.
+    const compute = () => {
+      const top = drop.getBoundingClientRect().top;
+      const from = innerHeight * 0.95;
+      const to = innerHeight * 0.34;
+      return utils.clamp((from - top) / (from - to), 0, 1);
+    };
+
+    let ticking = false;
+    const onMove = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const next = compute();
+        if (Math.abs(next - progress) < 0.001) return;
+        progress = next;
+        paint();
       });
-    }), { threshold: 0.5 }).observe(drop);
+    };
+    addEventListener("scroll", onMove, { passive: true });
+    addEventListener("resize", onMove, { passive: true });
+    progress = compute();
+    paint();
+
+    // Keep the undecoded glyphs shimmering while the word is on screen.
+    new IntersectionObserver((es) => es.forEach((e) => {
+      inView = e.isIntersecting;
+      if (inView && !shimmer) {
+        shimmer = setInterval(() => { if (progress < 1) paint(); }, 130);
+      } else if (!inView && shimmer) {
+        clearInterval(shimmer); shimmer = null;
+      }
+    }), { threshold: 0.05 }).observe(drop);
   }
 
   /* — The Sun Guard saying arrives a word at a time. — */
@@ -519,21 +588,6 @@ const PLACES = [
 })();
 
 /* ═══════════ 8. The Archive ═══════════ */
-const ERYTHAIC = [..."𐌀𐌁𐌂𐌃𐌄𐌅𐌆𐌇𐌈𐌉𐌊𐌋𐌌𐌍𐌎𐌏𐌐𐌑𐌒𐌓𐌔𐌕𐌖𐌗𐌘𐌙𐌚"];
-const SCARS = [..."▚▞▓▒░█▙▟"];
-function erythaic(words = 26) {
-  const pick = (a) => a[(Math.random() * a.length) | 0];
-  const out = [];
-  for (let i = 0; i < words; i++) {
-    let w = "";
-    for (let j = 0, len = 2 + ((Math.random() * 5) | 0); j < len; j++) {
-      w += Math.random() < 0.08 ? pick(SCARS) : pick(ERYTHAIC);
-    }
-    out.push(w);
-  }
-  return out.join(" ");
-}
-
 const RECORDS = [
   { file: "REC-0001", slug: "erik-swordstrong", name: "Erik Swordstrong", role: "Sun Guard, formerly",
     text: "Captain of the Third Squadron. Carried a Mark from his seventh cycle and believed, the way soldiers do, that it meant something. He hunts now — blindfolded, by sound and weight and the honest map of pressure — with a grey, ugly blade that no smith will claim." },

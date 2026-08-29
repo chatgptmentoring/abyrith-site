@@ -336,6 +336,24 @@ em{ font-style:italic; }
   color:transparent; -webkit-text-stroke:1px rgba(233,229,220,.24);
   text-shadow:0 0 70px rgba(216,32,44,.32);
 }
+/* Letters still in Erythaic stay hollow; resolved ones fill and catch light.
+   A shared min-width keeps the word from reflowing as glyphs swap in. */
+.word-drop__text span{
+  display:inline-block; min-width:.68em; text-align:center;
+}
+.wd-off{
+  color:transparent; -webkit-text-stroke:1px rgba(233,229,220,.16);
+  opacity:.5; font-size:.88em;
+  font-family:"Segoe UI Historic","Noto Sans Old Italic",var(--display),serif;
+}
+.wd-on{
+  color:transparent; -webkit-text-stroke:1px rgba(233,229,220,.62);
+  text-shadow:0 0 46px rgba(216,32,44,.6);
+}
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0;
+}
 .word-drop__sub{
   display:block; margin-top:1.3rem; font-family:var(--mono); font-size:.72rem;
   letter-spacing:.5em; text-transform:uppercase; color:var(--rift-hot);
