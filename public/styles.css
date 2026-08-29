@@ -105,6 +105,67 @@ em{ font-style:italic; }
 }
 .linkish:hover{ color:var(--bone); border-bottom-color:var(--line-hot); }
 
+/* ── Magnetic CTA ───────────────────────────────────────── */
+.magnet{
+  position:relative; display:inline-flex; align-items:center; justify-content:center;
+  padding:1.15em 2.4em; border:1px solid var(--rift); border-radius:2px;
+  background:linear-gradient(135deg,#c4121f,#e0242f 45%,#a50f1a); color:#fff;
+  cursor:pointer; overflow:hidden; isolation:isolate;
+  box-shadow:0 14px 44px -14px rgba(216,32,44,.7), inset 0 1px 0 rgba(255,255,255,.18);
+  transition:box-shadow .45s var(--ease), border-color .45s;
+  will-change:transform;
+}
+.magnet:hover{ box-shadow:0 22px 66px -12px rgba(255,74,61,.85), inset 0 1px 0 rgba(255,255,255,.28); border-color:var(--rift-hot); }
+.magnet__pull{ display:flex; flex-direction:column; align-items:center; gap:.35em; pointer-events:none; will-change:transform; }
+.magnet__label{
+  font-family:var(--mono); font-size:.82rem; font-weight:500; letter-spacing:.16em;
+  text-transform:uppercase; white-space:nowrap;
+}
+.magnet__sub{
+  font-family:var(--body); font-size:.86rem; letter-spacing:.02em;
+  color:rgba(255,255,255,.72); white-space:nowrap;
+}
+.magnet__glow{
+  position:absolute; top:0; left:0; width:190px; height:190px; margin:-95px 0 0 -95px;
+  border-radius:50%; pointer-events:none; opacity:0; z-index:-1;
+  background:radial-gradient(circle,rgba(255,255,255,.42),transparent 62%);
+  transition:opacity .4s;
+}
+.magnet:hover .magnet__glow{ opacity:1; }
+.magnet--lg{ padding:1.35em 3.1em; }
+.magnet--lg .magnet__label{ font-size:.95rem; }
+@media (max-width:520px){
+  .magnet{ padding:1.05em 1.5em; width:100%; }
+  .magnet__label{ font-size:.72rem; letter-spacing:.1em; white-space:normal; text-align:center; }
+  .magnet__sub{ font-size:.78rem; }
+}
+
+/* ── Recognition chip ───────────────────────────────────── */
+.nav__right{ display:flex; align-items:center; gap:.9rem; }
+.welcome{
+  display:inline-flex; align-items:center; gap:.55em; cursor:pointer;
+  padding:.55em 1em; border:1px solid rgba(224,169,79,.32); border-radius:100px;
+  background:rgba(224,169,79,.07); color:var(--light);
+  font-family:var(--mono); font-size:.63rem; letter-spacing:.16em; text-transform:uppercase;
+  transition:border-color .35s,background .35s; white-space:nowrap;
+}
+.welcome:hover{ border-color:rgba(224,169,79,.6); background:rgba(224,169,79,.13); }
+.welcome__dot{ width:5px; height:5px; border-radius:50%; background:var(--light); box-shadow:0 0 8px var(--light); flex:none; }
+/* display:inline-flex above would otherwise beat the [hidden] default. */
+.welcome[hidden]{ display:none; }
+@media (max-width:760px){ .welcome{ display:none; } }
+
+/* ── Tally ──────────────────────────────────────────────── */
+.tally{ margin:2.6rem 0 0; text-align:center; }
+.tally__n{
+  display:block; font-family:var(--display); font-size:clamp(2rem,5vw,3.2rem); font-weight:700;
+  color:var(--light); text-shadow:0 0 40px rgba(224,169,79,.45); line-height:1;
+}
+.tally__l{
+  display:block; margin-top:.6rem; font-family:var(--mono); font-size:.64rem;
+  letter-spacing:.28em; text-transform:uppercase; color:var(--ash);
+}
+
 /* ── Nav ────────────────────────────────────────────────── */
 .nav{
   position:fixed; top:0; left:0; right:0; z-index:60;
@@ -203,7 +264,8 @@ em{ font-style:italic; }
 .hero__cta{ display:flex; flex-wrap:wrap; gap:.9rem 1.6rem; align-items:center; margin-bottom:2.4rem; }
 .hero__alt{
   font-family:var(--mono); font-size:.66rem; letter-spacing:.16em; text-transform:uppercase;
-  color:var(--ash); text-decoration:none; border-bottom:1px solid transparent; transition:.3s;
+  color:var(--ash); text-decoration:none; border:0; border-bottom:1px solid transparent;
+  background:none; padding:0; cursor:pointer; transition:.3s;
 }
 .hero__alt:hover{ color:var(--bone); border-bottom-color:var(--line-hot); }
 @media (max-width:900px){
@@ -509,10 +571,54 @@ input.is-bad{ border-color:var(--rift); }
   .lb__inner img{ max-height:48vh; }
 }
 
+/* ── The Screening (modal) ──────────────────────────────── */
+.screen{
+  position:fixed; inset:0; z-index:220; display:grid; place-items:center;
+  padding:var(--gut); background:rgba(4,4,7,.9); backdrop-filter:blur(12px);
+  overflow-y:auto;
+}
+.screen[hidden]{ display:none; }
+.screen__panel{
+  position:relative; width:100%; max-width:620px; border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(18,18,26,.98),rgba(6,6,10,.98));
+  box-shadow:0 50px 130px -40px #000, 0 0 90px -50px rgba(216,32,44,.6);
+  border-radius:2px; overflow:hidden; will-change:transform,opacity;
+}
+.screen__panel::before{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.45;
+  background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(233,229,220,.02) 3px 4px);
+}
+/* Keep the status text clear of the close button. */
+.screen__panel .table__chrome{ padding-right:3.4rem; }
+.screen__close{
+  position:absolute; top:.35rem; right:.5rem; z-index:5; width:38px; height:38px;
+  background:none; border:1px solid transparent; color:var(--ash); font-size:1.4rem;
+  line-height:1; cursor:pointer; transition:color .3s,border-color .3s;
+}
+.screen__close:hover{ color:var(--bone); border-color:var(--line-hot); }
+.scr-step{ padding:clamp(1.6rem,4vw,2.6rem); position:relative; z-index:2; }
+.scr-title{ font-family:var(--display); font-size:clamp(1.6rem,4.4vw,2.3rem); font-weight:700; margin-bottom:1rem; }
+.scr-lede{ color:var(--bone-dim); margin-bottom:1.8rem; }
+.scr-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+@media (max-width:520px){ .scr-grid{ grid-template-columns:1fr; } }
+.field__label i{ font-style:normal; color:var(--ash); text-transform:none; letter-spacing:.06em; }
+.scr-alt{ display:block; margin:1.5rem auto 0; }
+.scr-or{
+  display:flex; align-items:center; gap:1rem; margin:1.4rem 0;
+  font-family:var(--mono); font-size:.6rem; letter-spacing:.24em; text-transform:uppercase; color:var(--ash);
+}
+.scr-or::before,.scr-or::after{ content:""; flex:1; height:1px; background:var(--line); }
+.scr-enrolled{
+  text-align:center; color:var(--light); font-family:var(--mono); font-size:.68rem;
+  letter-spacing:.14em; margin:1.6rem 0 0; line-height:1.9;
+}
+.screen .btn--wide{ margin-top:.4rem; }
+.screen .scan{ padding:2.5rem 0; }
+
 /* ── Close + Footer ─────────────────────────────────────── */
 .close{ padding:clamp(5rem,11vw,9rem) 0; text-align:center; border-top:1px solid var(--line); background:linear-gradient(180deg,transparent,rgba(216,32,44,.05)); }
 .close__copy{ color:var(--bone-dim); max-width:52ch; margin:0 auto 2.4rem; }
-.close__form{ max-width:520px; margin-inline:auto; }
+.close__cta{ display:flex; justify-content:center; }
 .foot{ padding:2.6rem 0 3rem; border-top:1px solid var(--line); }
 .foot .wrap{ display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:center; }
 .foot__title{ font-family:var(--display); font-weight:700; letter-spacing:.24em; font-size:.82rem; margin:0; }
@@ -522,8 +628,10 @@ input.is-bad{ border-color:var(--rift); }
 /* ── Reveal ─────────────────────────────────────────────────
    Scoped to .js so the page renders fully even if the script
    never runs (blocked, errored, or an ancient browser).       */
-.js .reveal{ opacity:0; transform:translateY(26px); transition:opacity .95s var(--ease),transform .95s var(--ease); }
-.js .reveal.in{ opacity:1; transform:none; }
+/* Anime.js drives the motion, so no CSS transition here to fight it.
+   .in is the failsafe that shows content instantly if the script never runs. */
+.js .reveal{ opacity:0; }
+.js .reveal.in{ opacity:1; }
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{ animation-duration:.001s !important; animation-iteration-count:1 !important; transition-duration:.001s !important; }

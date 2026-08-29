@@ -62,7 +62,13 @@
     <a href="#census">The Census</a>
     <a href="#archive">The Archive</a>
   </nav>
-  <a class="btn btn--ghost nav__cta" href="#preorder">Preorder</a>
+  <div class="nav__right">
+    <button class="welcome" id="welcome" type="button" hidden>
+      <span class="welcome__dot" aria-hidden="true"></span>
+      <span class="welcome__text"></span>
+    </button>
+    <button class="btn btn--ghost nav__cta" type="button" data-open-screen>Preorder</button>
+  </div>
 </header>
 
 <main id="top">
@@ -90,24 +96,24 @@
         <em>Those it never named are vanishing — and no one is counting.</em>
       </p>
 
-      <form class="hero__form reveal" data-d="4" id="heroForm" novalidate>
+      <div class="hero__form reveal" data-d="4">
         <p class="hero__form-label">
           <span class="hero__form-dot" aria-hidden="true"></span>Preorder opens soon — the list goes first
         </p>
-        <div class="field-row">
-          <input id="heroEmail" type="email" name="email" inputmode="email" autocomplete="email"
-                 maxlength="254" placeholder="your@email.com" required spellcheck="false"
-                 aria-label="Your email address">
-          <button class="btn btn--solid" type="submit" id="heroBtn">Reserve my copy</button>
-        </div>
-        <p class="form-msg" id="heroMsg" role="status" aria-live="polite"></p>
-      </form>
+        <button class="magnet" id="wantBtn" type="button" data-open-screen>
+          <span class="magnet__pull">
+            <span class="magnet__label">Yes, I want the book!</span>
+            <span class="magnet__sub">Free Mark screening included</span>
+          </span>
+          <span class="magnet__glow" aria-hidden="true"></span>
+        </button>
+      </div>
 
       <div class="hero__cta reveal" data-d="5">
         <a class="btn btn--ghost" href="#trailer">
           <span class="btn__play" aria-hidden="true"></span>Watch the trailer
         </a>
-        <a class="hero__alt" href="#census">Or see if the Light has you on record</a>
+        <button class="hero__alt" type="button" id="recallLink">Already screened? Recall my record</button>
       </div>
 
       <p class="hero__author reveal" data-d="6">A novel by <strong>Dejan Davcevski</strong></p>
@@ -316,14 +322,20 @@
       list gets the link first — along with the opening chapter and the release date
       before it goes public.
     </p>
-    <form id="footerForm" class="close__form reveal" novalidate>
-      <div class="field-row">
-        <input id="footerEmail" type="email" name="email" inputmode="email" autocomplete="email"
-               maxlength="254" placeholder="your@email.com" required spellcheck="false">
-        <button class="btn btn--solid" type="submit" id="footerBtn">Reserve my copy</button>
-      </div>
-      <p class="form-msg" id="footerMsg" role="status" aria-live="polite"></p>
-    </form>
+    <div class="close__cta reveal">
+      <button class="magnet magnet--lg" id="wantBtn2" type="button" data-open-screen>
+        <span class="magnet__pull">
+          <span class="magnet__label">Yes, I want the book!</span>
+          <span class="magnet__sub">Free Mark screening included</span>
+        </span>
+        <span class="magnet__glow" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <p class="tally reveal" id="tally" hidden>
+      <span class="tally__n" id="tallyN">0</span>
+      <span class="tally__l">souls indexed so far</span>
+    </p>
   </div>
 </section>
 
@@ -349,6 +361,99 @@
   </div>
 </div>
 
+<!-- ══════════════ The Screening ══════════════ -->
+<div class="screen" id="screen" hidden role="dialog" aria-modal="true" aria-labelledby="scrTitle">
+  <div class="screen__panel" id="scrPanel">
+    <button class="screen__close" id="scrClose" type="button" aria-label="Close">&times;</button>
+    <div class="table__chrome" aria-hidden="true">
+      <span>NORTH EYE · REGISTRY TERMINAL</span><span class="table__stat" id="scrStat">STANDBY</span>
+    </div>
+
+    <!-- 1 · enrol -->
+    <div class="scr-step" id="scrEnrol">
+      <p class="kicker">Free Mark screening</p>
+      <h2 class="scr-title" id="scrTitle">Yes, I want the book</h2>
+      <p class="scr-lede">
+        Give the Registry your name and it will run your Light-signature against the index.
+        You get your Mark — and the preorder link the moment it opens.
+      </p>
+      <form id="enrolForm" novalidate>
+        <div class="scr-grid">
+          <label class="field">
+            <span class="field__label">First name</span>
+            <input id="enFirst" type="text" autocomplete="given-name" maxlength="60" required spellcheck="false" placeholder="Erik">
+          </label>
+          <label class="field">
+            <span class="field__label">Last name <i>optional</i></span>
+            <input id="enLast" type="text" autocomplete="family-name" maxlength="60" spellcheck="false" placeholder="Swordstrong">
+          </label>
+        </div>
+        <label class="field">
+          <span class="field__label">Email</span>
+          <input id="enEmail" type="email" inputmode="email" autocomplete="email" maxlength="254" required spellcheck="false" placeholder="your@email.com">
+        </label>
+        <button class="btn btn--solid btn--wide" type="submit" id="enBtn">Begin the screening</button>
+        <p class="form-msg" id="enMsg" role="status" aria-live="polite"></p>
+      </form>
+      <button class="linkish scr-alt" type="button" id="toRecall">Already screened? Recall my record</button>
+    </div>
+
+    <!-- 2 · scanning -->
+    <div class="scr-step" id="scrScan" hidden>
+      <div class="scan">
+        <div class="scan__rings" aria-hidden="true"><i></i><i></i><i></i></div>
+        <ul class="scan__log" id="scrLog" aria-live="polite"></ul>
+      </div>
+    </div>
+
+    <!-- 3 · result -->
+    <div class="scr-step" id="scrResult" hidden>
+      <div class="result" id="scrResultBox">
+        <div class="result__sigil" id="scrSigil" aria-hidden="true"></div>
+        <p class="result__verdict" id="scrVerdict"></p>
+        <p class="result__desig" id="scrDesig"></p>
+        <p class="result__id" id="scrId"></p>
+        <p class="result__body" id="scrBody"></p>
+      </div>
+      <p class="scr-enrolled" id="scrEnrolled"></p>
+      <div class="result__actions">
+        <button class="linkish" type="button" id="scrShare">Share your result</button>
+        <button class="linkish" type="button" id="scrDone">Close</button>
+      </div>
+    </div>
+
+    <!-- 4 · recall -->
+    <div class="scr-step" id="scrRecall" hidden>
+      <p class="kicker">Registry lookup</p>
+      <h2 class="scr-title">Recall my record</h2>
+      <p class="scr-lede" id="rcLede">
+        Give the address you screened with — or just your name, if you remember which one you used.
+      </p>
+      <form id="recallForm" novalidate>
+        <label class="field">
+          <span class="field__label">Email</span>
+          <input id="rcEmail" type="email" inputmode="email" autocomplete="email" maxlength="254" spellcheck="false" placeholder="your@email.com">
+        </label>
+        <p class="scr-or"><span>or by name</span></p>
+        <div class="scr-grid">
+          <label class="field">
+            <span class="field__label">First name</span>
+            <input id="rcFirst" type="text" autocomplete="given-name" maxlength="60" spellcheck="false" placeholder="Erik">
+          </label>
+          <label class="field" id="rcLastField">
+            <span class="field__label">Last name</span>
+            <input id="rcLast" type="text" autocomplete="family-name" maxlength="60" spellcheck="false" placeholder="Swordstrong">
+          </label>
+        </div>
+        <button class="btn btn--solid btn--wide" type="submit" id="rcBtn">Find my record</button>
+        <p class="form-msg" id="rcMsg" role="status" aria-live="polite"></p>
+      </form>
+      <button class="linkish scr-alt" type="button" id="toEnrol">Not on the list yet? Screen me instead</button>
+    </div>
+  </div>
+</div>
+
+<script src="/vendor/anime.umd.min.js"></script>
 <script src="/app.js" defer></script>
 </body>
 </html>
