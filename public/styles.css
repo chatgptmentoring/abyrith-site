@@ -279,8 +279,10 @@ em{ font-style:italic; }
 }
 .hero__author strong{ color:var(--bone); font-weight:400; }
 
-.cover{ position:relative; transform:perspective(1400px) rotateY(-11deg) rotateX(2.5deg); transition:transform .9s var(--ease); }
-.cover:hover{ transform:perspective(1400px) rotateY(-4deg) rotateX(0) translateY(-8px); }
+/* Perspective lives on the wrapper so the pointer-parallax can own
+   .cover's transform outright. */
+.hero__cover{ perspective:1400px; }
+.cover{ position:relative; transform:rotateY(-11deg) rotateX(2.5deg); will-change:transform; }
 .cover img{
   width:100%; border-radius:2px;
   box-shadow:0 40px 90px -20px rgba(0,0,0,.95), 0 0 70px -18px rgba(216,32,44,.5),
@@ -372,7 +374,8 @@ em{ font-style:italic; }
 }
 .player__bars{ position:absolute; inset:0; pointer-events:none; }
 .player__bars i{ position:absolute; left:0; right:0; height:clamp(22px,4.6vw,52px); background:#000; }
-.player__bars i:first-child{ top:0; } .player__bars i:last-child{ bottom:0; }
+.player__bars i:first-child{ top:0; transform-origin:top; }
+.player__bars i:last-child{ bottom:0; transform-origin:bottom; }
 .player iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; z-index:9; }
 
 /* ── The Census ─────────────────────────────────────────── */
@@ -624,6 +627,68 @@ input.is-bad{ border-color:var(--rift); }
 .foot__title{ font-family:var(--display); font-weight:700; letter-spacing:.24em; font-size:.82rem; margin:0; }
 .foot__title span{ color:var(--ash); font-family:var(--body); letter-spacing:.06em; font-weight:400; }
 .foot__by{ font-family:var(--mono); font-size:.62rem; letter-spacing:.14em; color:var(--ash); margin:0; }
+
+/* ── Scroll rift (progress) ─────────────────────────────── */
+.riftline{
+  position:fixed; top:0; left:0; width:2px; height:100vh; z-index:70; pointer-events:none;
+  background:linear-gradient(180deg,var(--rift-hot),var(--rift) 55%,transparent);
+  transform:scaleY(0); transform-origin:top;
+  box-shadow:0 0 14px rgba(216,32,44,.75);
+}
+@media (prefers-reduced-motion:reduce){ .riftline{ display:none; } }
+
+/* Split-text wrappers must not clip the descenders. */
+.display .line, .places-title .line{ overflow:hidden; }
+
+/* ── Data notice ────────────────────────────────────────── */
+/* Bottom-right: the hero CTA sits bottom-left, and this must never cover it. */
+.gdpr{
+  position:fixed; right:var(--gut); bottom:var(--gut); z-index:180; width:min(370px,calc(100vw - 2*var(--gut)));
+  padding:1.3rem 1.4rem; border:1px solid var(--line); border-radius:2px;
+  background:rgba(10,10,16,.96); backdrop-filter:blur(14px);
+  box-shadow:0 28px 70px -26px #000, inset 0 1px 0 rgba(233,229,220,.06);
+}
+.gdpr[hidden]{ display:none; }
+.gdpr__title{
+  display:flex; align-items:center; gap:.6em; margin:0 0 .7rem;
+  font-family:var(--mono); font-size:.66rem; letter-spacing:.22em; text-transform:uppercase; color:var(--light);
+}
+.gdpr__dot{ width:5px; height:5px; border-radius:50%; background:var(--light); box-shadow:0 0 8px var(--light); flex:none; }
+.gdpr__body{ font-size:.92rem; line-height:1.6; color:var(--bone-dim); margin:0 0 1.1rem; }
+.gdpr__row{ display:flex; gap:.6rem; }
+.gdpr__btn{ flex:1; padding:.72em 1em; font-size:.62rem; letter-spacing:.14em; }
+.gdpr__more{
+  display:inline-block; margin-top:.9rem; font-family:var(--mono); font-size:.6rem;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--ash);
+  border-bottom:1px solid transparent; text-decoration:none; transition:.3s;
+}
+.gdpr__more:hover{ color:var(--bone); border-bottom-color:var(--line-hot); }
+@media (max-width:520px){ .gdpr{ left:12px; right:12px; bottom:12px; width:auto; padding:1.1rem; } }
+
+.consent{
+  font-size:.82rem; line-height:1.55; color:var(--ash); margin:1rem 0 0; text-align:center;
+}
+.consent a{ color:var(--bone-dim); }
+.foot__link{ margin-left:1.2rem; color:var(--ash); text-decoration:none; border-bottom:1px solid var(--line); }
+.foot__link:hover{ color:var(--bone); }
+
+/* ── Legal page ─────────────────────────────────────────── */
+.legal{ padding:9rem 0 5rem; }
+.legal h1{ margin-bottom:1.6rem; }
+.legal h2{
+  font-family:var(--display); font-size:clamp(1.15rem,2.6vw,1.5rem); font-weight:700;
+  margin:2.8rem 0 .9rem; color:var(--bone);
+}
+.legal p,.legal li{ color:var(--bone-dim); }
+.legal ul{ margin:0 0 1.15em; padding-left:1.3em; }
+.legal li{ margin-bottom:.6em; }
+.legal a{ color:var(--light); }
+.legal code{ font-family:var(--mono); font-size:.86em; color:var(--bone); }
+.legal__foot{
+  margin-top:3.5rem; padding-top:1.5rem; border-top:1px solid var(--line);
+  font-family:var(--mono); font-size:.64rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ash);
+}
 
 /* ── Reveal ─────────────────────────────────────────────────
    Scoped to .js so the page renders fully even if the script

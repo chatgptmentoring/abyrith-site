@@ -19,17 +19,65 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const { animate, createTimeline, createAnimatable, stagger, svg, utils,
-        splitText, scrambleText } = window.anime || {};
+        splitText, scrambleText, onScroll } = window.anime || {};
 const HAS_ANIME = typeof animate === "function";
+const MOTION = HAS_ANIME && !REDUCED;
 
-/* ═══════════ Storage — who this visitor is ═══════════ */
+// Headings split into characters, filled in once the fonts have settled.
+const SPLITS = new Map();
+
+function playChars(h) {
+  const chars = SPLITS.get(h);
+  if (!chars || h.dataset.charsPlayed) return;
+  h.dataset.charsPlayed = "1";
+  utils.set(h, { opacity: 1 });
+  animate(chars, {
+    y: ["115%", "0%"], opacity: [0, 1],
+    duration: 950, delay: stagger(17), ease: "out(3)",
+  });
+}
+
+/* ═══════════ Consent + storage ═══════════
+   The consent flag itself is always stored — without it the notice could
+   not remember it was answered. The visitor's record is only stored when
+   they have actually allowed it. */
 const STORE = "abyrith.record.v1";
+const CONSENT = "abyrith.consent.v1";
+
+const consent = () => { try { return localStorage.getItem(CONSENT); } catch (_) { return null; } };
+const mayStore = () => consent() === "all";
+
 const remember = (rec) => {
+  if (!mayStore()) return;
   try { localStorage.setItem(STORE, JSON.stringify({ ...rec, at: Date.now() })); } catch (_) {}
 };
 const recalled = () => {
+  if (!mayStore()) return null;
   try { return JSON.parse(localStorage.getItem(STORE) || "null"); } catch (_) { return null; }
 };
+
+(function dataNotice() {
+  const el = $("#gdpr");
+  if (!el) return;
+  const decide = (choice) => {
+    try {
+      localStorage.setItem(CONSENT, choice);
+      if (choice !== "all") localStorage.removeItem(STORE);
+    } catch (_) {}
+    if (HAS_ANIME && !REDUCED) {
+      animate(el, { opacity: 0, y: 16, duration: 420, ease: "in(2)", onComplete: () => (el.hidden = true) });
+    } else { el.hidden = true; }
+    if (choice !== "all") { const c = $("#welcome"); if (c) c.hidden = true; }
+  };
+  $("#gdprAll").addEventListener("click", () => decide("all"));
+  $("#gdprMin").addEventListener("click", () => decide("essential"));
+
+  if (consent()) return;
+  setTimeout(() => {
+    el.hidden = false;
+    if (HAS_ANIME && !REDUCED) animate(el, { opacity: [0, 1], y: [24, 0], duration: 700, ease: "out(3)" });
+  }, 1400);
+})();
 
 /* ═══════════ Supabase RPC ═══════════ */
 async function rpc(fn, body) {
@@ -93,14 +141,24 @@ async function rpc(fn, body) {
 const revealNow = (el) => {
   if (el.dataset.shown) return;
   el.dataset.shown = "1";
-  if (!HAS_ANIME || REDUCED) { el.classList.add("in"); return; }
+  if (!MOTION) { el.classList.add("in"); return; }
+  el.classList.add("in");
+
+  // Headings resolve letter by letter out of a clipped baseline.
+  if (SPLITS.has(el)) { playChars(el); return; }
+
+  // Archive records swing in from a tilted plane.
+  if (el.classList.contains("card")) {
+    animate(el, {
+      opacity: [0, 1], y: [40, 0], rotateX: [-22, 0], scale: [0.94, 1],
+      duration: 1000, delay: (+el.dataset.d || 0) * 90, ease: "out(3)",
+    });
+    return;
+  }
+
   animate(el, {
-    opacity: [0, 1],
-    y: [26, 0],
-    duration: 900,
-    delay: (+el.dataset.d || 0) * 90,
-    ease: "out(3)",
-    onComplete: () => el.classList.add("in"),
+    opacity: [0, 1], y: [26, 0],
+    duration: 900, delay: (+el.dataset.d || 0) * 90, ease: "out(3)",
   });
 };
 
@@ -175,6 +233,110 @@ function watch(els) {
     }, 260);
 
   items.forEach((el) => el.classList.add("in"));
+})();
+
+/* ═══════════ 3b. The wider motion pass ═══════════ */
+(function motionPass() {
+  if (!MOTION) return;
+
+  /* — Headings split into characters once the fonts have settled, so the
+       measurements are taken against the real typeface. — */
+  const initSplits = () => {
+    $$(".display, .places-title").forEach((h) => {
+      try {
+        const { chars } = splitText(h, { chars: { wrap: "clip" }, accessible: true });
+        if (!chars || !chars.length) return;
+        SPLITS.set(h, chars);
+        utils.set(chars, { opacity: 0 });
+
+        if (h.dataset.shown) { playChars(h); return; }   // already on screen
+
+        // A heading that is not itself a .reveal (nothing would ever trigger
+        // it) gets its own observer.
+        if (!h.classList.contains("reveal")) {
+          new IntersectionObserver((es, obs) => es.forEach((e) => {
+            if (!e.isIntersecting) return;
+            obs.disconnect();
+            playChars(h);
+          }), { threshold: 0.25 }).observe(h);
+        }
+      } catch (_) { /* leave the heading as plain text */ }
+    });
+  };
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(initSplits);
+
+  /* — The cover leans with the pointer. — */
+  const cover = $(".cover");
+  if (cover && matchMedia("(pointer: fine)").matches) {
+    const tilt = createAnimatable(cover, { rotateX: 700, rotateY: 700, ease: "out(4)" });
+    addEventListener("pointermove", (e) => {
+      if (scrollY > innerHeight) return;               // only while the hero is in view
+      const nx = (e.clientX / innerWidth - 0.5) * 2;
+      const ny = (e.clientY / innerHeight - 0.5) * 2;
+      tilt.rotateY(-11 + nx * 10);
+      tilt.rotateX(2.5 - ny * 8);
+    }, { passive: true });
+  }
+
+  /* — A rift down the edge of the page, widening as you descend. — */
+  const rift = $("#riftline");
+  if (rift) {
+    let ticking = false;
+    const draw = () => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      utils.set(rift, { scaleY: max > 0 ? Math.min(scrollY / max, 1) : 0 });
+      ticking = false;
+    };
+    addEventListener("scroll", () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(draw); }
+    }, { passive: true });
+    draw();
+  }
+
+  /* — The hero glow fades out as the hero leaves. — */
+  if (typeof onScroll === "function") {
+    animate(".rift__glow", {
+      opacity: [1, 0.15],
+      autoplay: onScroll({ target: ".hero", sync: true, enter: "bottom bottom", leave: "bottom top" }),
+    });
+  }
+
+  /* — Letterbox bars retract like a cinema curtain. — */
+  const player = $("#player");
+  if (player) {
+    new IntersectionObserver((es, obs) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      animate(".player__bars i", { scaleY: [1, 0], duration: 1400, delay: stagger(120), ease: "inOut(3)" });
+    }), { threshold: 0.35 }).observe(player);
+  }
+
+  /* — ABYRITH resolves out of the Ancient Tongue. — */
+  const drop = $(".word-drop__text");
+  if (drop && typeof scrambleText === "function") {
+    new IntersectionObserver((es, obs) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      animate(drop, {
+        innerHTML: scrambleText({ chars: "𐌀𐌁𐌂𐌃𐌄𐌅𐌆𐌇𐌈𐌉𐌊𐌋𐌌𐌍𐌎𐌏𐌐𐌑𐌒𐌓𐌔𐌕𐌖𐌗𐌘𐌙𐌚", revealRate: 0.34 }),
+        duration: 2200, ease: "linear",
+      });
+    }), { threshold: 0.5 }).observe(drop);
+  }
+
+  /* — The Sun Guard saying arrives a word at a time. — */
+  const quote = $(".quote blockquote");
+  if (quote) {
+    try {
+      const { words } = splitText(quote, { words: { wrap: "clip" }, accessible: true });
+      utils.set(words, { opacity: 0 });
+      new IntersectionObserver((es, obs) => es.forEach((e) => {
+        if (!e.isIntersecting) return;
+        obs.disconnect();
+        animate(words, { y: ["100%", "0%"], opacity: [0, 1], duration: 900, delay: stagger(46), ease: "out(3)" });
+      }), { threshold: 0.4 }).observe(quote);
+    } catch (_) {}
+  }
 })();
 
 /* ═══════════ 4. Magnetic buttons ═══════════ */

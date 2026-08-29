@@ -20,6 +20,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   });
 
   // open the screening modal
+  try{await p.click('#gdprAll');await sleep(600);}catch(e){}
   await p.click('#wantBtn');
   await sleep(900);
   await p.screenshot({path:path.join(OUT,'02-modal.jpg'),quality:86,type:'jpeg'});
