@@ -570,6 +570,88 @@ const PLACES = [
     text: "Every other region on the Ring carries its scars. Solkar's column reads zero — not one Rift, not once. Whatever else is true of the place, the Light has never torn open above it." },
 ];
 
+/* Percentages are of the map image box, so the pins ride with it at any size. */
+const REGIONS = [
+  { x: 48.5, y: 58, name: "Aurelion", tag: "Kingdom",
+    text: "Twenty-four recorded Rifts. Three of them major. More than the rest of the Ring put together — and the Crown has no explanation it is willing to publish." },
+  { x: 41.5, y: 67.5, name: "Oakhaven", tag: "Kingdom",
+    text: "A day and a half from the capital by the Serpent Road. It hosted a Grand Alignment, and it holds the record nobody wanted: the largest Rift ever measured." },
+  { x: 66, y: 67, name: "Kaelmarch", tag: "Industrial engine",
+    text: "The furnaces and foundries the lit cities depend on and would rather not look at. Everything clean about Aurelion is paid for somewhere in Kaelmarch." },
+  { x: 82, y: 60, name: "Solkar", tag: "Rift events: 0",
+    text: "Not one Rift, ever. It is also where the Undefined are least free. Past the canyon bridge a calm, maternal, entirely artificial voice welcomes you to the Museum of Civilization and asks you to observe the data." },
+  { x: 18, y: 48, name: "The Sapphire Basin", tag: "Outer kingdom",
+    text: "Three minor fractures and a long way from the Crown. Its High Princess rode the Serpent Roads to Aurelion under Sun Guard escort. That journey is where this story begins." },
+  { x: 36, y: 25, name: "Wydin", tag: "Unsurveyed",
+    text: "The map marks it with a question mark. So does the Archive." },
+  { x: 74, y: 25, name: "Thunder Plains", tag: "Open country",
+    text: "Past the last road and the last Mark. The storms out here answer to nothing the System has ever indexed." },
+  { x: 77, y: 31, name: "Wild Kingdom", tag: "Beyond the System",
+    text: "No Crown, no Marks, no census — and, like Solkar, not one Rift. The Archive does not enjoy being asked about that pairing." },
+  { x: 57, y: 70, name: "Serpent Roads", tag: "Main roads",
+    text: "Fourteen rotations of wind and stone between outposts, and one rule that never bends: you do not travel them after the light has passed." },
+];
+
+const ARTEFACTS = [
+  { slug: "astrafer", name: "Astrafer", tag: "Material · restricted",
+    text: "Inactive, it is pale, dormant, cold. Heavy as stone and worth nothing. Active, it ignites from within — pure, luminous, alive. Torian says that with a single gram he could build you a transformer in ten beats. Nobody has a single gram." },
+  { slug: "twilight-strider", name: "The Twilight-Strider", tag: "Fauna · hostile", wide: true,
+    text: "Six-legged, armoured, and perfectly at home in the ravines where the light turns grey. Hunters do not go north for the meat. They go for the horn — clamped, cut and set into a lens, it throws a beam that sees what daylight cannot." },
+  { slug: "skyweaver", name: "The Skyweaver", tag: "Vessel · Aurelion",
+    text: "Prism-sailed and impossibly light, the Skyweavers carry the Crown's business over the rooftops of the capital. The Gilded Wing was the pride of the fleet. It was also the first thing to fall." },
+  { slug: "currency", name: "Currency of the Ringworld", tag: "Two forms of power",
+    text: "Large Ones are struck from regional gold — thick, heavy, imperfect, stamped with King Auron's profile. Physical. Tangible. Real. Light Credits are universal, digital and flawless. Clean, weightless, and an illusion of security. One is the weight of power. The other is value without weight: a lie that glitters." },
+  { slug: "kids-stones", name: "The kids with the stones", tag: "Undefined · unrecorded",
+    text: "Two children the System does not count, holding the one thing it cannot explain. Stabilised light pushes the dark back a few feet — far enough to sit inside. Nobody taught them this. They worked it out because nobody was watching." },
+  { slug: "viras-parents", name: "Vira's parents", tag: "Ashberry · subsistence",
+    text: "Two farmers working a hillside for whatever the season gave them, charged the same extortion rate as the merchants who could afford it. Vira does not talk about them. She just keeps the file." },
+];
+
+(function ringMap() {
+  const pins = $("#mapPins");
+  if (!pins) return;
+  pins.innerHTML = REGIONS.map((r, i) => `
+    <button class="pin" type="button" data-i="${i}"
+            style="left:${r.x}%;top:${r.y}%" aria-label="${r.name}">
+      <span class="pin__dot" aria-hidden="true"></span>
+      <span class="pin__name">${r.name}</span>
+    </button>`).join("");
+
+  const empty = $("#mapEmpty"), detail = $("#mapDetail");
+  const select = (i) => {
+    const r = REGIONS[i];
+    $$(".pin", pins).forEach((p) => p.classList.toggle("is-on", +p.dataset.i === i));
+    $("#mpTag").textContent = r.tag;
+    $("#mpName").textContent = r.name;
+    $("#mpText").textContent = r.text;
+    empty.hidden = true; detail.hidden = false;
+    if (MOTION) {
+      animate("#mapDetail > *", { opacity: [0, 1], y: [12, 0], duration: 520, delay: stagger(60), ease: "out(3)" });
+    }
+  };
+  pins.addEventListener("click", (e) => {
+    const p = e.target.closest(".pin");
+    if (p) select(+p.dataset.i);
+  });
+})();
+
+(function artefacts() {
+  const grid = $("#artefacts");
+  if (!grid) return;
+  grid.innerHTML = ARTEFACTS.map((p, i) => `
+    <figure class="place${p.wide ? " place--wide" : ""} reveal" data-d="${i % 3}">
+      <span class="place__frame">
+        <img src="/assets/art/${p.slug}.webp" alt="${p.name}" loading="lazy" decoding="async">
+      </span>
+      <figcaption>
+        <p class="place__tag">${p.tag}</p>
+        <h4 class="place__name">${p.name}</h4>
+        <p class="place__text">${p.text}</p>
+      </figcaption>
+    </figure>`).join("");
+  watch($$(".place", grid));
+})();
+
 (function places() {
   const grid = $("#places");
   if (!grid) return;

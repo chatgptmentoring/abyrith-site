@@ -59,6 +59,7 @@
   </a>
   <nav class="nav__links" aria-label="Primary">
     <a href="#world">The World</a>
+    <a href="#map">The Map</a>
     <a href="#trailer">Trailer</a>
     <a href="#census">The Census</a>
     <a href="#archive">The Archive</a>
@@ -199,6 +200,48 @@
   </div>
 </section>
 
+<!-- ══════════════════ THE RING ══════════════════ -->
+<section class="ring" id="map">
+  <div class="wrap">
+    <p class="kicker reveal">One world. One sun. Endless horizon.</p>
+    <h2 class="display reveal">The Ring</h2>
+    <p class="ring__intro reveal">
+      Aethergard does not orbit its sun — it encircles it. The world turns counter-clockwise
+      around a fixed star, and the light crosses it like a tide. Aurelion holds barely a sixth
+      of the ring. Touch a region to see what the Archive has on it.
+    </p>
+
+    <div class="ringmap reveal" id="ringmap">
+      <div class="ringmap__stage" id="mapStage">
+        <picture>
+          <source media="(max-width:640px)" srcset="/assets/map/aethergard-sm.webp" type="image/webp">
+          <img class="ringmap__img" src="/assets/map/aethergard.webp"
+               alt="Map of Aethergard, the Ringworld — a band of land encircling a fixed sun, marked with Aurelion, Oakhaven, Kaelmarch, Solkar, the Sapphire Basin, Wydin, the Thunder Plains and the Wild Kingdom."
+               width="1122" height="1402" loading="lazy" decoding="async">
+        </picture>
+        <div class="ringmap__sweep" aria-hidden="true"></div>
+        <div class="ringmap__pins" id="mapPins"></div>
+      </div>
+
+      <aside class="ringmap__panel" id="mapPanel" aria-live="polite">
+        <div class="mp mp--empty" id="mapEmpty">
+          <p class="mp__tag">Aurelion Region</p>
+          <h3 class="mp__name">One sixth of the ring</h3>
+          <p class="mp__text">
+            Everything in this book happens inside the sliver of the world the Crown has
+            actually mapped. Choose a marker to read the file.
+          </p>
+        </div>
+        <div class="mp" id="mapDetail" hidden>
+          <p class="mp__tag" id="mpTag"></p>
+          <h3 class="mp__name" id="mpName"></h3>
+          <p class="mp__text" id="mpText"></p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
 <!-- ══════════════════ TRAILER ══════════════════ -->
 <section class="trailer" id="trailer">
   <div class="wrap">
@@ -311,6 +354,16 @@
     </div>
 
     <div class="places" id="places"></div>
+
+    <div class="places-head reveal">
+      <p class="kicker">Held evidence</p>
+      <h3 class="places-title">Artefacts &amp; fauna</h3>
+      <p class="places-intro">
+        Objects the Archive has catalogued, and one thing it would rather have shot than filed.
+      </p>
+    </div>
+
+    <div class="places" id="artefacts"></div>
   </div>
 </section>
 
