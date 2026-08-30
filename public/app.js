@@ -55,6 +55,54 @@ function playChars(h) {
   });
 }
 
+/* ═══════════ CMS ═══════════
+   Anything edited in the Registry Terminal overrides the built-in copy.
+   If the fetch fails the page simply keeps the wording baked into the HTML,
+   so the site can never end up blank because the database is unreachable. */
+const CMS = (async () => {
+  const empty = { content: {}, items: [], pages: [] };
+  const headers = { apikey: CONFIG.supabaseKey, Authorization: `Bearer ${CONFIG.supabaseKey}` };
+  const get = (q) =>
+    fetch(`${CONFIG.supabaseUrl}/rest/v1/${q}`, { headers })
+      .then((r) => (r.ok ? r.json() : []))
+      .catch(() => []);
+  try {
+    const [content, items, pages] = await Promise.all([
+      get("abyrith_content?select=key,value"),
+      get("abyrith_items?select=*&published=is.true&order=sort"),
+      get("abyrith_pages?select=slug,title,nav_label,nav_order&published=is.true&order=nav_order"),
+    ]);
+    const map = {};
+    (content || []).forEach((r) => { if (r && r.key) map[r.key] = r.value; });
+    return { content: map, items: items || [], pages: pages || [] };
+  } catch (_) { return empty; }
+})();
+
+// Text first, so headings are final before they are split into characters.
+const CMS_TEXT = CMS.then((cms) => {
+  $$("[data-cms]").forEach((el) => {
+    const v = cms.content[el.dataset.cms];
+    if (typeof v === "string" && v.trim()) el.innerHTML = v;
+  });
+  // Extra pages join the menu.
+  const links = $(".nav__links");
+  if (links && cms.pages.length) {
+    cms.pages.filter((p) => p.nav_label).forEach((p) => {
+      const a = document.createElement("a");
+      a.href = `/p/?s=${encodeURIComponent(p.slug)}`;
+      a.textContent = p.nav_label;
+      links.appendChild(a);
+    });
+  }
+  return cms;
+}).catch(() => ({ content: {}, items: [], pages: [] }));
+
+/* Collections the admin has taken over replace the built-in set entirely. */
+function cmsItems(cms, kind) {
+  const rows = (cms.items || []).filter((r) => r.kind === kind);
+  return rows.length ? rows : null;
+}
+
 /* ═══════════ Consent + storage ═══════════
    The consent flag itself is always stored — without it the notice could
    not remember it was answered. The visitor's record is only stored when
@@ -281,7 +329,12 @@ function watch(els) {
       } catch (_) { /* leave the heading as plain text */ }
     });
   };
-  (document.fonts ? document.fonts.ready : Promise.resolve()).then(initSplits);
+  // Wait for the fonts AND for any edited copy, so headings are final before
+  // they are split into characters.
+  Promise.all([
+    document.fonts ? document.fonts.ready : Promise.resolve(),
+    CMS_TEXT,
+  ]).then(initSplits);
 
   /* — The cover leans with the pointer. — */
   const cover = $(".cover");
@@ -635,39 +688,38 @@ const ARTEFACTS = [
   });
 })();
 
-(function artefacts() {
-  const grid = $("#artefacts");
+/* Both plate grids share one renderer. `dir` is the folder the built-in
+   art lives in; an item edited in the admin carries its own image_url. */
+function renderPlates(gridSel, list, dir) {
+  const grid = $(gridSel);
   if (!grid) return;
-  grid.innerHTML = ARTEFACTS.map((p, i) => `
+  grid.innerHTML = list.map((p, i) => {
+    const src = p.image_url || `/assets/${dir}/${p.slug}.webp`;
+    const body = p.text ?? p.body ?? "";
+    return `
     <figure class="place${p.wide ? " place--wide" : ""} reveal" data-d="${i % 3}">
       <span class="place__frame">
-        <img src="/assets/art/${p.slug}.webp" alt="${p.name}" loading="lazy" decoding="async">
+        <img src="${src}" alt="${p.name}" loading="lazy" decoding="async">
       </span>
       <figcaption>
-        <p class="place__tag">${p.tag}</p>
+        <p class="place__tag">${p.tag || ""}</p>
         <h4 class="place__name">${p.name}</h4>
-        <p class="place__text">${p.text}</p>
+        <p class="place__text">${body}</p>
       </figcaption>
-    </figure>`).join("");
+    </figure>`;
+  }).join("");
   watch($$(".place", grid));
-})();
+}
 
-(function places() {
-  const grid = $("#places");
-  if (!grid) return;
-  grid.innerHTML = PLACES.map((p, i) => `
-    <figure class="place${p.wide ? " place--wide" : ""} reveal" data-d="${i % 3}">
-      <span class="place__frame">
-        <img src="/assets/places/${p.slug}.webp" alt="${p.name}" loading="lazy" decoding="async">
-      </span>
-      <figcaption>
-        <p class="place__tag">${p.tag}</p>
-        <h4 class="place__name">${p.name}</h4>
-        <p class="place__text">${p.text}</p>
-      </figcaption>
-    </figure>`).join("");
-  watch($$(".place", grid));
-})();
+renderPlates("#artefacts", ARTEFACTS, "art");
+renderPlates("#places", PLACES, "places");
+
+CMS_TEXT.then((cms) => {
+  const a = cmsItems(cms, "artefact");
+  const p = cmsItems(cms, "place");
+  if (a) renderPlates("#artefacts", a, "art");
+  if (p) renderPlates("#places", p, "places");
+});
 
 /* ═══════════ 8. The Archive ═══════════ */
 const RECORDS = [

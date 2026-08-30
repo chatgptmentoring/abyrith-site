@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registry Terminal — ABYRITH</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#06060a">
+<link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/bookadmindeni/admin.css">
+</head>
+<body class="adm">
+
+<!-- ── Login ── -->
+<div class="adm-gate" id="gate">
+  <form class="adm-card" id="loginForm" novalidate>
+    <p class="kicker">Restricted</p>
+    <h1 class="adm-h1">Registry Terminal</h1>
+    <p class="adm-lede">Sign in to edit the site.</p>
+    <label class="field">
+      <span class="field__label">Username</span>
+      <input id="lgUser" type="text" autocomplete="username" value="Dejan" spellcheck="false" required>
+    </label>
+    <label class="field">
+      <span class="field__label">Password</span>
+      <input id="lgPass" type="password" autocomplete="current-password" required>
+    </label>
+    <button class="btn btn--solid btn--wide" type="submit" id="lgBtn">Enter</button>
+    <p class="form-msg" id="lgMsg" role="status" aria-live="polite"></p>
+  </form>
+</div>
+
+<!-- ── Panel ── -->
+<div class="adm-shell" id="shell" hidden>
+  <header class="adm-bar">
+    <span class="adm-brand"><span class="nav__glyph" aria-hidden="true"></span> Registry Terminal</span>
+    <nav class="adm-tabs" id="tabs">
+      <button class="adm-tab is-on" data-tab="text" type="button">Text</button>
+      <button class="adm-tab" data-tab="items" type="button">Artwork &amp; records</button>
+      <button class="adm-tab" data-tab="pages" type="button">Pages &amp; menu</button>
+      <button class="adm-tab" data-tab="media" type="button">Uploads</button>
+      <button class="adm-tab" data-tab="account" type="button">Account</button>
+    </nav>
+    <div class="adm-bar__right">
+      <a class="linkish" href="/" target="_blank" rel="noopener">View site</a>
+      <button class="linkish" type="button" id="logout">Sign out</button>
+    </div>
+  </header>
+
+  <p class="adm-status" id="status" role="status" aria-live="polite"></p>
+
+  <!-- TEXT -->
+  <section class="adm-pane is-on" data-pane="text">
+    <div class="adm-head">
+      <div>
+        <h2 class="adm-h2">Text on the front page</h2>
+        <p class="adm-note">
+          Every editable block on the site appears here once imported. Edit and save —
+          the live site picks it up on the next page load. Leave a field empty to fall
+          back to the built-in wording.
+        </p>
+      </div>
+      <button class="btn btn--ghost" type="button" id="importBtn">Import current site text</button>
+    </div>
+    <div id="textList" class="adm-list"></div>
+  </section>
+
+  <!-- ITEMS -->
+  <section class="adm-pane" data-pane="items">
+    <div class="adm-head">
+      <div>
+        <h2 class="adm-h2">Artwork &amp; records</h2>
+        <p class="adm-note">Archive records, places on the map, and artefact plates.</p>
+      </div>
+      <div class="adm-head__actions">
+        <select id="kindFilter" class="adm-select">
+          <option value="artefact">Artefacts</option>
+          <option value="place">Places</option>
+          <option value="record">Archive records</option>
+        </select>
+        <button class="btn btn--solid" type="button" id="addItem">Add new</button>
+      </div>
+    </div>
+    <div id="itemList" class="adm-list"></div>
+  </section>
+
+  <!-- PAGES -->
+  <section class="adm-pane" data-pane="pages">
+    <div class="adm-head">
+      <div>
+        <h2 class="adm-h2">Pages &amp; menu</h2>
+        <p class="adm-note">
+          New pages appear at <code>abyrith.com/p/your-slug</code>. Give one a menu label
+          and it is added to the site navigation.
+        </p>
+      </div>
+      <button class="btn btn--solid" type="button" id="addPage">New page</button>
+    </div>
+    <div id="pageList" class="adm-list"></div>
+  </section>
+
+  <!-- MEDIA -->
+  <section class="adm-pane" data-pane="media">
+    <div class="adm-head">
+      <div>
+        <h2 class="adm-h2">Uploads</h2>
+        <p class="adm-note">
+          Drop in artwork, copy the address it gives you, and paste that into any record's
+          image field. PNG, JPEG, WebP or SVG, up to 10&nbsp;MB.
+        </p>
+      </div>
+      <label class="btn btn--solid adm-upload">
+        Choose a file<input id="fileInput" type="file" accept="image/*" hidden>
+      </label>
+    </div>
+    <div id="mediaList" class="adm-grid"></div>
+  </section>
+
+  <!-- ACCOUNT -->
+  <section class="adm-pane" data-pane="account">
+    <h2 class="adm-h2">Account</h2>
+    <p class="adm-note">
+      Signed in as <strong id="whoami">—</strong>. Change the password here; it is stored
+      hashed by Supabase and never appears in the site's code.
+    </p>
+    <form id="pwForm" class="adm-card adm-card--flat" novalidate>
+      <label class="field">
+        <span class="field__label">New password</span>
+        <input id="pw1" type="password" autocomplete="new-password" minlength="10" required>
+      </label>
+      <label class="field">
+        <span class="field__label">Repeat it</span>
+        <input id="pw2" type="password" autocomplete="new-password" minlength="10" required>
+      </label>
+      <button class="btn btn--solid" type="submit" id="pwBtn">Change password</button>
+      <p class="form-msg" id="pwMsg" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+</div>
+
+<script src="/bookadmindeni/admin.js"></script>
+</body>
+</html>

@@ -83,7 +83,7 @@
 
   <div class="hero__inner">
     <div class="hero__copy">
-      <p class="eyebrow reveal" data-d="0">
+      <p class="eyebrow reveal" data-cms="hero.eyebrow" data-d="0">
         <span class="eyebrow__dot" aria-hidden="true"></span>Book One &nbsp;·&nbsp; Coming Soon
       </p>
 
@@ -91,20 +91,20 @@
         <span class="hero__title-a">AB</span><span class="hero__seam" aria-hidden="true"></span><span class="hero__title-b">YR</span><span class="hero__seam" aria-hidden="true"></span><span class="hero__title-c">ITH</span>
       </h1>
 
-      <p class="hero__sub reveal" data-d="2">The Fracturing of Light</p>
+      <p class="hero__sub reveal" data-cms="hero.sub" data-d="2">The Fracturing of Light</p>
 
-      <p class="hero__line reveal" data-d="3">
+      <p class="hero__line reveal" data-cms="hero.line" data-d="3">
         The Light burns a purpose into the skin of every child it names.<br>
         <em>Those it never named are vanishing — and no one is counting.</em>
       </p>
 
       <div class="hero__form reveal" data-d="4">
-        <p class="hero__form-label">
+        <p class="hero__form-label" data-cms="hero.formLabel">
           <span class="hero__form-dot" aria-hidden="true"></span>Preorder opens soon — the list goes first
         </p>
         <button class="magnet" id="wantBtn" type="button" data-open-screen>
           <span class="magnet__pull">
-            <span class="magnet__label">Yes, I want the book!</span>
+            <span class="magnet__label" data-cms="hero.cta">Yes, I want the book!</span>
             <span class="magnet__sub">Free Mark screening included</span>
           </span>
           <span class="magnet__glow" aria-hidden="true"></span>
@@ -142,14 +142,14 @@
 <!-- ══════════════════ THE WORLD ══════════════════ -->
 <section class="world" id="world">
   <div class="wrap">
-    <p class="kicker reveal">The world of Aethergard</p>
+    <p class="kicker reveal" data-cms="world.kicker">The world of Aethergard</p>
 
-    <h2 class="display reveal">
+    <h2 class="display reveal" data-cms="world.title">
       The sun does not rise here.<br><span class="dim">It travels.</span>
     </h2>
 
     <div class="world__grid">
-      <div class="world__col reveal">
+      <div class="world__col reveal" data-cms="world.colA">
         <p class="lede">
           A tide of golden light circles a ring-shaped world, and everything it touches,
           it <em>defines</em>. Night is not darkness. Night is erasure.
@@ -160,7 +160,7 @@
           The Mark is the anchor. The Mark is the promise that you will not be forgotten.
         </p>
       </div>
-      <div class="world__col reveal" data-d="1">
+      <div class="world__col reveal" data-cms="world.colB" data-d="1">
         <p>Some children receive nothing at all.</p>
         <p>
           They are called the <strong class="und">Undefined</strong>. The System does not
@@ -176,14 +176,14 @@
     </div>
 
     <figure class="quote reveal">
-      <blockquote>
+      <blockquote data-cms="world.quote">
         Those who travel at night don&rsquo;t need a map —<br>
         the Light forgets where they live anyway.
       </blockquote>
       <figcaption>— an old Sun Guard saying</figcaption>
     </figure>
 
-    <div class="world__close reveal">
+    <div class="world__close reveal" data-cms="world.close">
       <p>
         <strong>Erik Swordstrong</strong> was Defined. A captain of the Sun Guard, an anchor,
         a man the Light swore it would never forget. He kept that faith through the first Rift,
@@ -203,9 +203,9 @@
 <!-- ══════════════════ THE RING ══════════════════ -->
 <section class="ring" id="map">
   <div class="wrap">
-    <p class="kicker reveal">One world. One sun. Endless horizon.</p>
-    <h2 class="display reveal">The Ring</h2>
-    <p class="ring__intro reveal">
+    <p class="kicker reveal" data-cms="ring.kicker">One world. One sun. Endless horizon.</p>
+    <h2 class="display reveal" data-cms="ring.title">The Ring</h2>
+    <p class="ring__intro reveal" data-cms="ring.intro">
       Aethergard does not orbit its sun — it encircles it. The world turns counter-clockwise
       around a fixed star, and the light crosses it like a tide. Aurelion holds barely a sixth
       of the ring. Touch a region to see what the Archive has on it.
@@ -245,8 +245,8 @@
 <!-- ══════════════════ TRAILER ══════════════════ -->
 <section class="trailer" id="trailer">
   <div class="wrap">
-    <p class="kicker reveal">Moving picture</p>
-    <h2 class="display reveal">See the fracture</h2>
+    <p class="kicker reveal" data-cms="trailer.kicker">Moving picture</p>
+    <h2 class="display reveal" data-cms="trailer.title">See the fracture</h2>
 
     <div class="player reveal" id="player" data-yt="">
       <img class="player__poster" src="/assets/img/solkar.webp" alt="A ruined city beneath a fractured sky" loading="lazy" decoding="async" width="1200" height="675">
@@ -263,9 +263,9 @@
 <!-- ══════════════════ THE CENSUS ══════════════════ -->
 <section class="census" id="census">
   <div class="wrap wrap--narrow">
-    <p class="kicker reveal">The North Eye · Resonance Table</p>
-    <h2 class="display reveal">Are you Defined?</h2>
-    <p class="census__intro reveal">
+    <p class="kicker reveal" data-cms="census.kicker">The North Eye · Resonance Table</p>
+    <h2 class="display reveal" data-cms="census.title">Are you Defined?</h2>
+    <p class="census__intro reveal" data-cms="census.intro">
       Every citizen of Aethergard is indexed by the Light. Submit your name to the Table
       and see what the System has on record for you.
     </p>
@@ -335,9 +335,9 @@
 <!-- ══════════════════ THE ARCHIVE ══════════════════ -->
 <section class="archive" id="archive">
   <div class="wrap">
-    <p class="kicker reveal">Recovered records</p>
-    <h2 class="display reveal">The Archive</h2>
-    <p class="archive__intro reveal">
+    <p class="kicker reveal" data-cms="archive.kicker">Recovered records</p>
+    <h2 class="display reveal" data-cms="archive.title">The Archive</h2>
+    <p class="archive__intro reveal" data-cms="archive.intro">
       Fragments pulled from the North Eye before the purge. Several files remain sealed —
       opening them early would spoil the whole business.
     </p>
@@ -346,8 +346,8 @@
 
     <div class="places-head reveal">
       <p class="kicker">Surveyed territory</p>
-      <h3 class="places-title">Places on the Ring</h3>
-      <p class="places-intro">
+      <h3 class="places-title" data-cms="places.title">Places on the Ring</h3>
+      <p class="places-intro" data-cms="places.intro">
         Six locations the Archive still holds maps for. The world turns; the Light crosses
         it like a tide. These are the stops along the way.
       </p>
@@ -357,8 +357,8 @@
 
     <div class="places-head reveal">
       <p class="kicker">Held evidence</p>
-      <h3 class="places-title">Artefacts &amp; fauna</h3>
-      <p class="places-intro">
+      <h3 class="places-title" data-cms="artefacts.title">Artefacts &amp; fauna</h3>
+      <p class="places-intro" data-cms="artefacts.intro">
         Objects the Archive has catalogued, and one thing it would rather have shot than filed.
       </p>
     </div>
@@ -370,8 +370,8 @@
 <!-- ══════════════════ CLOSING CTA ══════════════════ -->
 <section class="close" id="preorder">
   <div class="wrap wrap--narrow">
-    <h2 class="display reveal">Reserve your copy</h2>
-    <p class="close__copy reveal">
+    <h2 class="display reveal" data-cms="preorder.title">Reserve your copy</h2>
+    <p class="close__copy reveal" data-cms="preorder.copy">
       <em>Abyrith: The Fracturing of Light</em> opens for preorder soon. Everyone on this
       list gets the link first — along with the opening chapter and the release date
       before it goes public.

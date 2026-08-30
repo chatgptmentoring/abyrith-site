@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /bookadmindeni/
 
 Sitemap: https://abyrith.com/sitemap.xml
