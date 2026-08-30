@@ -566,8 +566,8 @@ const PLACES = [
     text: "It held light long before anyone thought to build beneath it. The town grew around the tree for the oldest reason there is: nobody wants to meet the dark without something that remembers the day." },
   { slug: "kaelmarch", name: "Kaelmarch", tag: "Records incomplete",
     text: "Very little survives in the Archive about Kaelmarch. Vira has stopped assuming that sort of gap is an accident." },
-  { slug: "solkar-city", name: "Solkar", tag: "Undefined population: 0",
-    text: "The census returns a clean zero here, every cycle, without fail. No city on the Ring has ever returned a clean zero. That is precisely what makes the number worth reading twice." },
+  { slug: "solkar-city", name: "Solkar", tag: "Rift events: 0",
+    text: "Every other region on the Ring carries its scars. Solkar's column reads zero — not one Rift, not once. Whatever else is true of the place, the Light has never torn open above it." },
 ];
 
 (function places() {
@@ -604,7 +604,7 @@ const RECORDS = [
   { file: "REC-0007", slug: "lucious", name: "Lucious", role: "Hostile — do not approach",
     text: "Masked, spiked, and entirely at ease with what he does. Witnesses agree on the laughter and very little else. The file was flagged for containment and then, curiously, unflagged." },
   { file: "REC-0008", slug: "the-seer", name: "███ Seer", role: "Sealed by order of the Crown", sealed: true,
-    text: "This record is sealed. What can be said: he offers people exactly what they have lost, in the voice they most want to hear it in — and the price is never named up front." },
+    text: "This record is sealed, and it stays sealed. Every honest summary of it gives away the chapter it belongs to." },
   { file: "REC-0009", slug: "axiom", name: "▚▚▚▚▚", role: "Record corrupted", sealed: true, corrupt: true, text: "" },
 ];
 
