@@ -433,22 +433,18 @@ em{ font-style:italic; }
 
 /* ── Word roots (Ab · Yr · Ith) ─────────────────────────── */
 .roots{ text-align:center; padding:0 0 clamp(3rem,7vw,5rem); }
-.roots__row{
-  display:flex; justify-content:center; flex-wrap:wrap; gap:clamp(1.2rem,4vw,3rem);
-  margin:0 0 1.8rem;
+.roots__verse{
+  font-family:var(--display); font-size:clamp(1.1rem,2.9vw,1.75rem); font-weight:400;
+  font-style:italic; letter-spacing:.03em; line-height:1.5; color:#f2eee6;
+  max-width:26ch; margin:0 auto 1rem; text-wrap:balance;
 }
-.roots__part{ display:flex; flex-direction:column; gap:.45rem; }
-.roots__part b{
-  font-family:var(--display); font-size:clamp(1.3rem,3.4vw,2rem); font-weight:700;
-  letter-spacing:.14em; color:var(--bone);
-}
-.roots__part i{
-  font-family:var(--mono); font-style:normal; font-size:.6rem; letter-spacing:.24em;
-  text-transform:uppercase; color:var(--light); opacity:.85;
-}
-.roots__text{ max-width:56ch; margin:0 auto 1.2rem; color:var(--bone-dim); }
 .roots__note{
-  font-family:var(--mono); font-size:.6rem; letter-spacing:.16em; color:var(--ash); margin:0;
+  font-family:var(--mono); font-size:.6rem; letter-spacing:.16em; color:var(--ash);
+  margin:0 0 2.2rem;
+}
+.roots__text{
+  font-family:var(--display); font-size:clamp(1rem,2.3vw,1.35rem); letter-spacing:.04em;
+  color:var(--bone-dim); max-width:34ch; margin:0 auto; text-wrap:balance;
 }
 
 /* ── Trailer ────────────────────────────────────────────── */
