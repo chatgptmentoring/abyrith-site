@@ -646,16 +646,14 @@ const REGIONS = [
 ];
 
 const ARTEFACTS = [
-  { slug: "astrafer", name: "Astrafer", tag: "Material · restricted",
-    text: "Inactive, it is pale, dormant and cold — heavy as stone and worth nothing. Active, it ignites from within: pure, luminous, alive. The Ring runs on it, and there has never been enough." },
+  { slug: "astrafer", name: "Astrafer", tag: "The reserve",
+    text: "The most valuable substance on the Ring, and every region hoards every gram it can hold. Inactive it lies pale, dormant and cold. Active it ignites from within — pure, luminous, alive. A kingdom's vault is what its money stands on: however much Astrafer sits in it, that is how many Light Credits the Crown can back." },
   { slug: "twilight-strider", name: "The Twilight-Strider", tag: "Fauna · hostile", wide: true,
-    text: "Six-legged, armoured, and perfectly at home in the ravines where the light turns grey. Hunters do not go north for the meat. They go for the horn." },
+    text: "Armoured, and perfectly at home in the ravines where the light turns grey. Hunters do not go north for the meat. They go for the horn." },
   { slug: "skyweaver", name: "The Skyweaver", tag: "Vessel · Aurelion",
     text: "Solar-silk airships that have been persuaded to forget gravity, carrying the Crown's business over the rooftops of the capital. They fly for exactly as long as the light keeps holding its end of the arrangement." },
-  { slug: "currency", name: "Currency of the Ringworld", tag: "Two forms of power",
-    text: "Light Credits are universal, digital and flawless — and trackable to the last transaction. Large Ones are struck from regional gold: thick, heavy, imperfect, stamped with King Auron's profile, and quite untraceable. One is the weight of power. The other is value without weight: a lie that glitters." },
-  { slug: "kids-stones", name: "The kids with the stones", tag: "Undefined · unrecorded",
-    text: "Two children the System does not count, holding the one thing it cannot explain. Stabilised light pushes the dark back a few feet — far enough to sit inside. Nobody taught them this. They worked it out because nobody was watching." },
+  { slug: "currency", name: "Currency of the Ringworld", tag: "Two forms of value",
+    text: "Light Credits are universal and digital — glass cast with energy glyphs, clean, weightless, and trackable to the last transaction. Large Ones are struck from regional gold: thick, heavy, imperfect, stamped with the profile of King Auron, and quite untraceable. Most citizens will only ever handle one of the two." },
   { slug: "viras-parents", name: "Vira's parents", tag: "Ashberry · subsistence",
     text: "Two farmers on a hillside outside Ashberry, working for whatever the season gave them and charged the same extortion rate as merchants who could afford it. Vira does not talk about them. She just keeps the file." },
 ];
@@ -737,8 +735,9 @@ const RECORDS = [
     text: "Half his head is wire. Brass, glass, and a workshop that smells of scorched oil, out where the foundries run. He can fix almost anything that was built. His standing objection, delivered at volume: he cannot fix physics." },
   { file: "REC-0007", slug: "lucious", name: "Lucius", role: "The Awakened — do not approach",
     text: "A miner's uniform fused into a fortress of rock and rusted steel. He speaks for the Awakened, and their creed is two words long: I matter. Witnesses agree on very little else." },
-  { file: "REC-0008", slug: "the-seer", name: "███ Seer", role: "Sealed by order of the Crown", sealed: true,
-    text: "This record is sealed, and it stays sealed. Every honest summary of it gives away the chapter it belongs to." },
+  { file: "REC-0008", slug: "the-seer", name: "███ Seer", role: "Sealed by order of the Crown",
+    sealed: true, branch: "This is Erik…",
+    text: "This record is sealed, and it stays sealed." },
   { file: "REC-0009", slug: "axiom", name: "▚▚▚▚▚", role: "Record corrupted", sealed: true, corrupt: true, text: "" },
 ];
 
@@ -778,6 +777,17 @@ const RECORDS = [
     } else {
       $("#lbName").textContent = r.name;
       $("#lbText").textContent = r.text;
+    }
+
+    // A record whose subject is not quite one person: the line is drawn
+    // several times over, slightly out of step with itself.
+    const br = $("#lbBranch");
+    if (r.branch) {
+      br.innerHTML = `<span class="branchtext" data-t="${r.branch}">${r.branch}</span>`;
+      br.hidden = false;
+    } else {
+      br.hidden = true;
+      br.innerHTML = "";
     }
 
     lastFocus = document.activeElement;
