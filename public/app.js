@@ -627,7 +627,7 @@ const PLACES = [
 const REGIONS = [
   { x: 48.5, y: 58, name: "Aurelion", tag: "Kingdom",
     text: "Golden, faith-run, and the richest kingdom on the Ring in coin. White walls rising like teeth against the curve of the world. The Crown sits here, and so does the Sun Guard." },
-  { x: 41.5, y: 67.5, name: "Oakhaven", tag: "Kingdom",
+  { x: 41.5, y: 67.5, name: "Oakhaven", tag: "Trade city · Aurelion",
     text: "Built around the LumenOak — an ancient tree of crystal and petrified amber carrying a thousand glass leaves. A day and a half from the capital by the Serpent Road." },
   { x: 66, y: 67, name: "Caelmarch", tag: "Industrial engine",
     text: "Cast iron, basalt and agri-vines. It forges what the lit cities live on and keeps their soot for them. The Slag-Heap slum clings to the outside of the wall like something the city could not quite shake off." },
@@ -637,10 +637,10 @@ const REGIONS = [
     text: "Water, Astrafer and the Great Glass Dam. It hoards all three, and it is a long way from the Crown." },
   { x: 36, y: 25, name: "Wydin", tag: "Unsurveyed",
     text: "The map marks it with a question mark. So does the Archive." },
-  { x: 74, y: 25, name: "Thunder Plains", tag: "Open country",
-    text: "Past the last road and the last Mark, where the storms answer to nothing the System has ever indexed." },
-  { x: 77, y: 31, name: "Wild Kingdom", tag: "Beyond the System",
-    text: "East, off-grid: no light towers, no roads, no census. Beyond the reach of the System — which is precisely how it prefers things." },
+  { x: 84, y: 36.7, name: "Thunder Plains", tag: "Storm border",
+    text: "The storm border separating Solkar from the Wild Kingdom. Heading east, the order is Solkar, then the Thunder Plains, then the Wild Kingdom." },
+  { x: 74.4, y: 25.2, name: "Wild Kingdom", tag: "Beyond the Thunder Plains",
+    text: "Across the Thunder Plains from Solkar, off-grid: no light towers, no roads, no census. The storms form the border between the two kingdoms." },
   { x: 57, y: 70, name: "Serpent Roads", tag: "Main roads",
     text: "Fourteen rotations of wind and stone between outposts, on a road that adjusts itself. One rule never bends: you do not travel them after the light has passed." },
 ];
