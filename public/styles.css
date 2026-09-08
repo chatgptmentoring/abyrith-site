@@ -862,3 +862,9 @@ input.is-bad{ border-color:var(--rift); }
   #ash,.grain{ display:none; }
 }
 :focus-visible{ outline:2px solid var(--rift-hot); outline-offset:3px; }
+
+/* The full atlas opens as its own immersive, accessible map. */
+.atlas-invitation{display:flex;align-items:center;gap:24px;margin:28px 0 40px;padding:25px 28px;border:1px solid #b79a6455;background:linear-gradient(110deg,#b49a7014,#1d231610);color:#d3be91;transition:border-color .2s,background .2s;text-decoration:none}
+.atlas-invitation:hover{border-color:#dbc694;background:linear-gradient(110deg,#b49a7026,#1d231618)}
+.atlas-invitation__sigil{font-size:44px;font-weight:300}.atlas-invitation small{display:block;font:9px 'JetBrains Mono',monospace;letter-spacing:2px;color:#a5977d}.atlas-invitation strong{display:block;font:400 26px 'Cinzel',Georgia,serif;margin:8px 0}.atlas-invitation em{display:block;font:16px 'Cormorant Garamond',Georgia,serif;color:#a6a797}.atlas-invitation__arrow{margin-left:auto;font-size:30px}
+@media(max-width:640px){.atlas-invitation{padding:20px 17px;gap:14px}.atlas-invitation__sigil{font-size:30px}.atlas-invitation strong{font-size:19px}.atlas-invitation em{font-size:13px;line-height:1.5}.atlas-invitation__arrow{font-size:23px}}

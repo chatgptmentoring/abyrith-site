@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111411">
+  <title>Aethergard Atlas — ABYRITH</title>
+  <meta name="description" content="Explore the ringworld of Aethergard. An interactive atlas of ABYRITH: cities, kingdoms, the Serpent Roads, and journeys through the light.">
+  <link rel="canonical" href="https://abyrith.com/atlas/">
+  <meta property="og:title" content="Aethergard — The Living Atlas">
+  <meta property="og:description" content="One world. One sun. Endless horizon. Explore the world of ABYRITH.">
+  <meta property="og:image" content="https://abyrith.com/assets/map/aethergard.webp">
+  <link rel="icon" href="/assets/img/favicon-32.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./atlas.css">
+  <script type="module" src="./atlas.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#mapViewport">Skip to map</a>
+  <header class="masthead">
+    <a href="/" class="brand" aria-label="ABYRITH home"><span class="brand-glyph" aria-hidden="true">◉</span> ABYRITH</a>
+    <div class="masthead-center"><span class="live-dot"></span> THE LIVING ATLAS <span class="edition">/ VOL. I</span></div>
+    <a class="back-link" href="/#map">Return to the book <span aria-hidden="true">↗</span></a>
+  </header>
+  <main class="atlas-shell">
+    <aside class="explorer" id="explorer" aria-label="Atlas explorer">
+      <div class="explorer-heading"><p class="eyebrow">THE KNOWN RING</p><h1>Aethergard</h1><p class="intro">One world. One sun.<br><em>Endless horizon.</em></p></div>
+      <label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Find a place or a story…" aria-label="Search atlas" autocomplete="off"><kbd>/</kbd></label>
+      <div class="tabs" role="tablist" aria-label="Explore by"><button id="placesTab" role="tab" aria-selected="true" aria-controls="catalog">Places <span id="placeCount"></span></button><button id="journeysTab" role="tab" aria-selected="false" aria-controls="catalog" tabindex="-1">Journeys <span>02</span></button></div>
+      <div class="filters" id="filters" role="group" aria-label="Filter places"><button class="active" data-filter="all" aria-pressed="true">All records</button><button data-filter="charted" aria-pressed="false">On the chart</button><button data-filter="landmark" aria-pressed="false">Landmarks</button></div>
+      <div id="catalog" class="catalog" role="tabpanel" aria-labelledby="placesTab"></div>
+      <div class="explorer-foot"><label class="switch"><input type="checkbox" id="spoilers"><span class="switch-track"></span><span>Reveal Book One spoilers</span></label><button id="notesButton" class="text-button">About this atlas <span aria-hidden="true">↗</span></button></div>
+    </aside>
+    <section class="map-area" aria-label="Interactive map of Aethergard">
+      <div class="map-heading"><span class="eyebrow">ARCHIVE CARTOGRAPHY / 001</span><p id="viewTitle">The world that encircles the sun</p></div>
+      <div class="orbit-console"><button id="rotationToggle" aria-label="Pause world rotation" aria-pressed="true">Ⅱ</button><div><span id="orbitMode" class="eyebrow">40° FOCUS · CLOCKWISE</span><p id="dawnLocation">Dawn over Aurelion</p></div></div>
+      <div class="view-switch" role="group" aria-label="Map presentation"><button id="reliefButton" class="active" aria-pressed="true">Living atlas</button><button id="chartButton" aria-pressed="false">Original chart</button></div>
+      <div id="mapViewport" class="map-viewport" tabindex="0" role="region" aria-label="Zoomable map. Use arrow keys to pan, plus and minus to zoom, and zero to reset.">
+        <div id="mapWorld" class="map-world">
+          <img id="mapArt" class="map-art" src="/assets/map/aethergard.webp" alt="The original Aethergard ringworld chart: Aurelion and Oakhaven below the central sun, the Sapphire Basin to the left, Solkar to the right, and storm lands on the far curve." width="1122" height="1402" draggable="false" fetchpriority="high">
+          <svg id="mapOverlay" class="map-overlay" viewBox="0 0 1122 1402" aria-hidden="true">
+            <defs>
+              <radialGradient id="lightGlow" gradientUnits="userSpaceOnUse" cx="563" cy="637" r="575"><stop offset="0" stop-color="#fff4ba" stop-opacity=".8"/><stop offset=".18" stop-color="#ffd681" stop-opacity=".12"/><stop offset=".7" stop-color="#ffd681" stop-opacity=".25"/><stop offset=".9" stop-color="#ffcb67" stop-opacity=".35"/><stop offset="1" stop-color="#ffd78b" stop-opacity="0"/></radialGradient>
+              <filter id="routeGlow"><feGaussianBlur stdDeviation="3"/></filter>
+              <mask id="landMask"><rect width="1122" height="1402" fill="black"/><ellipse cx="565" cy="669" rx="435" ry="385" fill="white"/><ellipse cx="580" cy="617" rx="286" ry="192" fill="black"/></mask>
+            </defs>
+            <g id="lightLayer"><g id="sunBeam"><path id="focusedBeam" data-angle="40" d="M563 637 L646.7 1205.875 A575 575 0 0 1 261.452 1126.585 Z" fill="url(#lightGlow)"/><path d="M563 637 L646.7 1205.875 M563 637 L261.452 1126.585" stroke="#ffe6a4" stroke-width="1" opacity=".4"/><circle class="core-aura" cx="563" cy="637" r="63" fill="#ffe295" opacity=".14"/><text x="532" y="790" class="beam-angle">40°</text></g></g>
+            <g id="regionLayer" hidden mask="url(#landMask)"><path d="M565 669 L180 1005 Q565 1190 849 981Z" fill="#d5ae65" opacity=".25"/><path d="M565 669 L850 990 Q1135 900 1000 510Z" fill="#e5a252" opacity=".25"/><path d="M565 669 L160 970 Q35 710 180 495Z" fill="#55979a" opacity=".3"/><path d="M565 669 L150 500 Q370 250 722 260Z" fill="#a1adab" opacity=".2"/></g>
+            <g id="stormBorder"><path d="M862 463 Q902 468 913 492 T989 554" class="storm-belt"/><path d="M862 463 L880 473 L886 469 L900 486 L910 481 L921 506 L934 500 L941 520 L954 516 L966 539 L978 536 L989 554" class="storm-boundary"/></g>
+            <g id="routeLayer"></g><g id="selectionLayer"></g>
+          </svg>
+        </div>
+        <div id="markerLayer" class="marker-layer"></div>
+      </div>
+      <div class="compass" aria-hidden="true"><span>CLOCKWISE</span><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="26"/><path d="M40 7 L44 34 L73 40 L44 44 L40 73 L36 44 L7 40 L36 36Z"/><path d="M65 16 A34 34 0 0 1 72 57 M67 53 L72 57 L77 51"/></svg><small>THE RING TURNS</small></div>
+      <div id="mapHint" class="map-hint"><span class="hint-rule"></span>Drag to wander · Scroll to look closer</div>
+      <div class="zoom-controls" role="group" aria-label="Map controls"><button id="zoomIn" title="Zoom in (+)" aria-label="Zoom in">+</button><output id="zoomValue" aria-label="Map zoom">100%</output><button id="zoomOut" title="Zoom out (−)" aria-label="Zoom out">−</button><span class="control-divider"></span><button id="fitMap" title="Fit the ring (0)" aria-label="Fit the ring">⌖</button><button id="fullscreen" title="Fullscreen" aria-label="Enter fullscreen">⛶</button></div>
+      <div id="welcomeCard" class="welcome-card"><p class="eyebrow">YOUR FIRST FOOTSTEP</p><h2>Follow the light.</h2><p>From the Crown’s white walls to the last road on the Ring.</p><button id="startTour">Explore the Ring <span aria-hidden="true">→</span></button></div>
+      <aside id="detail" class="detail-panel" hidden aria-label="Selected location"></aside>
+      <div id="tourBar" class="tour-bar" hidden><button id="tourPrev" aria-label="Previous journey stop">←</button><div><span id="tourProgress" class="eyebrow"></span><p id="tourStop"></p></div><button id="tourNext" aria-label="Next journey stop">→</button><button id="tourClose" aria-label="Close journey">×</button></div>
+      <div class="map-bottom"><div class="layers" role="group" aria-label="Map layers"><span class="layer-label">LAYERS</span><button id="labelsToggle" aria-label="Place labels" title="Place labels" aria-pressed="true" class="active">◇ <span>Places</span></button><button id="regionsToggle" aria-label="Region shading" title="Region shading" aria-pressed="false">◫ <span>Regions</span></button><button id="roadsToggle" aria-label="Schematic connections" title="Schematic connections" aria-pressed="false">⌁ <span>Connections</span></button><button id="lightToggle" aria-label="Sunlight study" title="Sunlight study" aria-pressed="false">☼ <span>Light</span></button></div><button id="mobileExplore" class="mobile-explore" aria-expanded="false" aria-controls="explorer">⌕ Explore places</button><span class="map-edition">AETHERGARD / FIELD ATLAS</span></div>
+      <div id="lightControl" class="light-control" hidden><div><span class="eyebrow">A FIXED SUN · A TURNING WORLD</span><button id="lightPlay" aria-label="Animate sunlight" aria-pressed="false">Play</button></div><label for="lightPhase">World rotation <output id="phaseValue">0°</output></label><input id="lightPhase" type="range" min="0" max="360" value="0"><p>A fixed 40° beam. Clockwise rotation. Aurelion → Solkar → Thunder Plains → Wild Kingdom → Wydin → Sapphire Basin. One visual circuit takes six minutes; this is not an in-world clock.</p></div>
+      <p id="mapStatus" class="sr-only" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <dialog id="notesDialog" aria-labelledby="notesTitle"><button class="dialog-close" id="closeNotes" aria-label="Close atlas notes">×</button><p class="eyebrow">A NOTE FROM THE CARTOGRAPHER</p><h2 id="notesTitle">A world, faithfully traced.</h2><p>This atlas combines the original chart published on abyrith.com with the Book One manuscript and its world bible. The chart is an illustration, not a measured survey.</p><dl><dt>On the chart</dt><dd>A marker follows a recognisable feature in the original artwork. It does not imply precise distance or scale.</dd><dt>Regional record</dt><dd>The text establishes a place, but the chart does not locate it. Selecting it highlights its broader region. No street-level position is invented.</dd><dt>Unplaced</dt><dd>The source does not fix a reliable position. These records remain in the catalogue without a pin.</dd><dt>Connections & journeys</dt><dd>Dotted lines are reading guides between chart anchors, not surveyed roads. Journey stops can share a regional anchor.</dd></dl><p>The manuscript takes precedence where labels differ: Oakhaven is treated as a city within Aurelion. “Wydin?” remains the chart’s uncertain name; it is not silently identified with Eldwyn or Wydienor.</p><p><strong>Eastern border:</strong> the author confirms that the Thunder Plains separate Solkar from the Wild Kingdom. The atlas follows the order Solkar → Thunder Plains → Wild Kingdom, overriding the original chart’s printed label placement. The storm belt shows this relationship schematically.</p><p>Book One plot developments are optional. Unpublished revelations from the author-only series canon are excluded. The author specifies clockwise world rotation under a fixed 40° beam. Sunrise proceeds from Aurelion toward Solkar, Thunder Plains, the Wild Kingdom, Wydin, and the Sapphire Basin. This overrides the original chart’s counterclockwise annotation. Animation speed is illustrative, not an in-world timetable.</p><p class="credits">World & original artwork © Dejan Davcevski.<br>ABYRITH · The Fracturing of Light</p></dialog>
+  <noscript><div class="no-script">This interactive atlas needs JavaScript. <a href="/assets/map/aethergard.webp">View the original map</a>.</div></noscript>
+</body>
+</html>
