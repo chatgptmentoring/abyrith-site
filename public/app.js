@@ -641,8 +641,12 @@ const REGIONS = [
     text: "The storm border separating Solkar from the Wild Kingdom. Heading east, the order is Solkar, then the Thunder Plains, then the Wild Kingdom." },
   { x: 74.4, y: 25.2, name: "Wild Kingdom", tag: "Beyond the Thunder Plains",
     text: "Across the Thunder Plains from Solkar, off-grid: no light towers, no roads, no census. The storms form the border between the two kingdoms." },
-  { x: 57, y: 70, name: "Serpent Roads", tag: "Main roads",
-    text: "Fourteen rotations of wind and stone between outposts, on a road that adjusts itself. One rule never bends: you do not travel them after the light has passed." },
+  { x: 57, y: 70, name: "Twilight City", tag: "Vareth Tywyn",
+    text: "A city in a mountain-shadowed valley, distinguished by its mirror-field. The Serpent Roads are the Ring’s road network, rather than a separate place." },
+  { x: 60, y: 55, name: "East Tower", tag: "Sunward of Caelmarch",
+    text: "A watchtower close to Caelmarch on the side facing the central sun." },
+  { x: 60, y: 22, name: "Titanfall", tag: "Scorched Ridge",
+    text: "An ancient impact site in the Scorched Ridge beside the Wild Kingdom." },
 ];
 
 const ARTEFACTS = [
