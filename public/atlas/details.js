@@ -10,7 +10,7 @@ export function addDetails({objects,materials:m,centres,heightAt,mesh,building,t
  const bannerMaterial=litMaterial({color:'#34566a',roughness:.9,side:THREE.DoubleSide});
  const verdigris=litMaterial({color:'#5a8880',metalness:.45,roughness:.7});
  const flagGeo=new THREE.PlaneGeometry(.52,1.3,6,8),fp=flagGeo.attributes.position;for(let i=0;i<fp.count;i++)fp.setZ(i,Math.sin(fp.getX(i)*9+fp.getY(i)*4)*.065);flagGeo.computeVertexNormals();
- function flag(x,y,z,rotation=0){mesh(cylinder,m.copper,x,y,z,.025,2.8,.025);const f=mesh(flagGeo,bannerMaterial,x+.25,y+.3,z,1,1,1);f.rotation.y=rotation;flags.push(f);mesh(finial,m.gold,x,y+1.48,z,.09,.2,.09);}
+ function flag(x,y,z,rotation=0){mesh(cylinder,m.copper,x,y,z,.025,2.8,.025);const f=mesh(flagGeo,bannerMaterial,x+.25,y+.3,z,1,1,1);f.rotation.y=rotation;f.userData.ringAnimated=true;flags.push(f);mesh(finial,m.gold,x,y+1.48,z,.09,.2,.09);}
  function sunSeal(x,y,z,size=.4){mesh(torus,m.gold,x,y,z,size,size,size);mesh(orb,m.gold,x,y,z,size*.48,size*.48,.06);for(let i=0;i<12;i++){const a=i/12*TAU,s=mesh(box,m.gold,x+Math.sin(a)*size*1.25,y+Math.cos(a)*size*1.25,z,.035,size*.32,.055);s.rotation.z=-a;}}
  function balustrade(x,z,length,y,axis='x',mat=m.stone){for(let i=0;i<=Math.floor(length/.35);i++){const d=-length/2+i*.35;mesh(cylinder,mat,x+(axis==='x'?d:0),y+.35,z+(axis==='z'?d:0),.045,.7,.045);}mesh(box,mat,x,y+.72,z,axis==='x'?length:.13,.12,axis==='z'?length:.13);}
  function column(x,z,y,h,mat=m.stone){mesh(cylinder,mat,x,y+h/2,z,.14,h,.14);for(const t of [.05,h-.07])mesh(cylinder,mat,x,y+t,z,.22,.14,.22);}
@@ -61,5 +61,5 @@ export function addDetails({objects,materials:m,centres,heightAt,mesh,building,t
  const shadowCanvas=document.createElement('canvas');shadowCanvas.width=shadowCanvas.height=64;const ctx=shadowCanvas.getContext('2d'),gradient=ctx.createRadialGradient(32,32,0,32,32,32);gradient.addColorStop(0,'#00000060');gradient.addColorStop(.5,'#00000024');gradient.addColorStop(1,'#00000000');ctx.fillStyle=gradient;ctx.fillRect(0,0,64,64);
  const shadowMat=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(shadowCanvas),transparent:true,depthWrite:false,color:'#102423'}),shadowGeo=new THREE.PlaneGeometry(1,1);
  for(const c of centres.values()){const shadow=mesh(shadowGeo,shadowMat,c.x,heightAt(c.x,c.z)+.045,c.z,18,18,1);shadow.rotation.x=-Math.PI/2;}
- return {update(time,motion){for(let i=0;i<flags.length;i++)flags[i].rotation.y=motion?Math.sin(time*1.2+i)*.12:0;}};
+ return {update(time,motion){for(let i=0;i<flags.length;i++)flags[i].quaternion.copy(flags[i].userData.frame||new THREE.Quaternion()).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),motion?Math.sin(time*1.2+i)*.12:0));}};
 }

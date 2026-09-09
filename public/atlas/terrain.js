@@ -1,6 +1,9 @@
 import * as THREE from 'three';
-import {places,SUNLIGHT_DEGREES} from './world-data.js';
-import {addDetails} from './details.js';
+import {places,SUNLIGHT_DEGREES} from './world-data.js?v=4';
+import {addDetails} from './details.js?v=4';
+import {expandWorld} from './expansion.js?v=4';
+import {waterAt,bridgeAt,lakes,rivers,bridges} from './waters.js?v=4';
+import {curvePoint,curveMatrix,bendWorld,nightMaterial,daylightAt,RING_RADIUS} from './ring.js?v=4';
 
 export const INNER=70,OUTER=118;
 const TAU=Math.PI*2, rad=THREE.MathUtils.degToRad;
@@ -14,7 +17,7 @@ const smooth=t=>t*t*(3-2*t);
 function noise(x,z){const i=Math.floor(x),j=Math.floor(z),a=smooth(x-i),b=smooth(z-j);return THREE.MathUtils.lerp(THREE.MathUtils.lerp(hash(i,j),hash(i+1,j),a),THREE.MathUtils.lerp(hash(i,j+1),hash(i+1,j+1),a),b);}
 function fbm(x,z){return noise(x*.07,z*.07)*.6+noise(x*.18,z*.18)*.27+noise(x*.49,z*.49)*.13;}
 const centres=new Map(places.filter(p=>p.angle!=null).map(p=>[p.id,polar(p.angle,p.radius)]));
-const developed=['aurelion','oakhaven','twilight-city','caelmarch','east-tower','solkar','basin'];
+const developed=['aurelion','oakhaven','twilight-city','caelmarch','east-tower','solkar','basin','riverpass','ashberry','luxharrow','blackwood','high-hollow','museum'];
 export function biomeAt(x,z){const a=angleAt(x,z);return a>44&&a<89?'desert':a>=89&&a<119?'storm':a>=119&&a<160?'wild':a>=160&&a<190?'impact':a>=190&&a<246?'mountain':a>=246&&a<315?'water':'forest';}
 export function heightAt(x,z){
  const r=Math.hypot(x,z),biome=biomeAt(x,z),n=fbm(x,z);
@@ -24,9 +27,10 @@ export function heightAt(x,z){
  if(biome==='desert')h=1.4+n*2.3+rim*6;
  if(biome==='wild')h+=noise(x*.15,z*.15)*3;
  if(biome==='water'){const c=centres.get('basin'),d=Math.hypot(x-c.x,z-c.z);h-=Math.max(0,1-d/15)*5;}
+ if(biome==='water'){const water=waterAt(x,z);if(water){h=THREE.MathUtils.lerp(h,Math.max(h,water.level+.7),smooth(Math.min(1,water.weight*3)));h=THREE.MathUtils.lerp(h,water.bed,smooth(water.weight));}}
  const crater=centres.get('titanfall'),d=Math.hypot(x-crater.x,z-crater.z);
  if(d<13)h=1.8+Math.exp(-Math.pow((d-9)/2.2,2))*8.5+(d<7?-.8:noise(x,z));
- for(const id of developed){const c=centres.get(id),dist=Math.hypot(x-c.x,z-c.z),range=id==='east-tower'?3:id==='twilight-city'?6:id==='basin'?12:9;if(dist<range){const base=id==='basin'?4.5:3.4;h=THREE.MathUtils.lerp(base,h,smooth(clamp((dist-range*.6)/(range*.4),0,1)));}}
+ for(const id of developed){const c=centres.get(id),dist=Math.hypot(x-c.x,z-c.z),range=id==='east-tower'?3:id==='twilight-city'?6:id==='basin'?12:['riverpass','ashberry','luxharrow','blackwood','high-hollow'].includes(id)?5:id==='museum'?6:9;if(dist<range){const base=id==='basin'?4.5:3.4;h=THREE.MathUtils.lerp(base,h,smooth(clamp((dist-range*.6)/(range*.4),0,1)));}}
  return h;
 }
 export function pointOf(place){const p=centres.get(place.id)?.clone();if(p)p.y=heightAt(p.x,p.z);return p;}
@@ -49,7 +53,7 @@ function litMaterial(options={}){
    diffuseColor.rgb*=.91+grain*.13+broad*.055;`);
   shader.fragmentShader=shader.fragmentShader.replace('#include <dithering_fragment>',`float incidence=dot(normalize(atlasWorld.xz),vec2(0.0,1.0));
   float daylight=smoothstep(${Math.cos(rad(35)).toFixed(7)},${Math.cos(rad(31)).toFixed(7)},incidence);
-  gl_FragColor.rgb*=mix(vec3(.57,.70,.80),vec3(1.10,1.05,.96),daylight);
+  // Illumination is applied uniformly to all world materials after construction.
   #include <dithering_fragment>`);
  };
  return mat;
@@ -163,7 +167,7 @@ export function createWorld(scene,{mobile=false}={}){
  // Caelmarch's furnaces, pipework and rotating fans.
  {const c=centres.get('caelmarch'),h=heightAt(c.x,c.z);
   for(let i=0;i<8;i++){const x=c.x+(i%4-1.5)*1.5,z=c.z+Math.floor(i/4)*2,hgt=5+random()*4;mesh(cylinder,materials.dark,x,h+hgt/2,z,.28,hgt,.28);mesh(cylinder,materials.copper,x,h+hgt-.5,z,.4,.3,.4);smoke.push({x,y:h+hgt,z,offset:random()*8});}
-  for(let i=0;i<3;i++){const x=c.x-3+i*2;const pipe=tube([new THREE.Vector3(x,h+1,c.z-3),new THREE.Vector3(x,h+3,c.z-3),new THREE.Vector3(x+1.6,h+3,c.z-2)],.19,materials.copper);const fan=new THREE.Group();fan.position.set(x,h+2,c.z-4);objects.add(fan);for(let j=0;j<5;j++){const blade=mesh(box,materials.copper,0,0,0,.13,1.4,.1,fan);blade.rotation.z=j/5*TAU;}spinners.push(fan);}
+  for(let i=0;i<3;i++){const x=c.x-3+i*2;const pipe=tube([new THREE.Vector3(x,h+1,c.z-3),new THREE.Vector3(x,h+3,c.z-3),new THREE.Vector3(x+1.6,h+3,c.z-2)],.19,materials.copper);const fan=new THREE.Group();fan.userData.ringAnimated=true;fan.position.set(x,h+2,c.z-4);objects.add(fan);for(let j=0;j<5;j++){const blade=mesh(box,materials.copper,0,0,0,.13,1.4,.1,fan);blade.rotation.z=j/5*TAU;}spinners.push(fan);}
   for(let i=0;i<18;i++){const a=random()*TAU,r=8.5+random()*2;building(c.x+Math.sin(a)*r,c.z+Math.cos(a)*r,.35,.4,.45,materials.dark,materials.roof);}
  }
  // East Tower is explicitly inward of Caelmarch.
@@ -188,30 +192,37 @@ export function createWorld(scene,{mobile=false}={}){
  const cloudMesh=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,1),new THREE.MeshStandardMaterial({color:'#52626b',transparent:true,opacity:.74,roughness:1}),clouds.length);
  clouds.forEach((c,i)=>{dummy.position.set(c.x,c.y,c.z);dummy.scale.set(c.s*1.6,c.s*.6,c.s);dummy.rotation.set(0,i,0);dummy.updateMatrix();cloudMesh.setMatrixAt(i,dummy.matrix);});weather.add(cloudMesh);
  const rainPos=[];for(let i=0;i<650;i++){const p=polar(91+random()*25,76+random()*38),h=6+random()*11;rainPos.push(p.x,h,p.z,p.x-.15,h-1.4,p.z);}
- const rainGeo=new THREE.BufferGeometry();rainGeo.setAttribute('position',new THREE.Float32BufferAttribute(rainPos,3));const rain=new THREE.LineSegments(rainGeo,new THREE.LineBasicMaterial({color:'#b6dce3',transparent:true,opacity:.2}));weather.add(rain);
+ const rainGeo=new THREE.BufferGeometry();rainGeo.setAttribute('position',new THREE.Float32BufferAttribute(rainPos,3));const rain=new THREE.LineSegments(rainGeo,new THREE.LineBasicMaterial({color:'#b6dce3',transparent:true,opacity:.2}));rain.userData.ringDynamic=true;weather.add(rain);
  const bolts=[];for(let i=0;i<4;i++){const p=polar(96+i*4,86+i*5),points=[];for(let j=0;j<8;j++)points.push(new THREE.Vector3(p.x+(j%2?.65:0),17-j*1.7,p.z+j*.15));const g=new THREE.BufferGeometry().setFromPoints(points),bolt=new THREE.Line(g,new THREE.LineBasicMaterial({color:'#c1eef6',transparent:true,opacity:.35}));weather.add(bolt);bolts.push(bolt);}
  // Titanfall's exposed dark fragments stand in the crater, beside the Wild Kingdom.
  {const c=centres.get('titanfall'),fragment=new THREE.ConeGeometry(1,1,4);for(let i=0;i<45;i++){const a=random()*TAU,r=random()*7,x=c.x+Math.sin(a)*r,z=c.z+Math.cos(a)*r,s=.4+random(),h=2+random()*4;const shard=mesh(fragment,materials.black,x,heightAt(x,z)+h*.45,z,s,h,s);shard.rotation.z=(random()-.5)*.65;}}
- const smokeMesh=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,1),new THREE.MeshBasicMaterial({color:'#65716e',transparent:true,opacity:.2,depthWrite:false}),smoke.length*3);weather.add(smokeMesh);
+ const smokeMesh=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,1),new THREE.MeshBasicMaterial({color:'#65716e',transparent:true,opacity:.2,depthWrite:false}),smoke.length*3);smokeMesh.userData.ringDynamic=true;weather.add(smokeMesh);
+ expandWorld({centres,heightAt,mesh,building,tube,materials,box,cylinder,cone,roads,waterMaterial});
  const details=addDetails({objects,materials,centres,heightAt,mesh,building,tube,box,cylinder,cone,litMaterial,mobile});
  // The fixed central sun and its precisely 70-degree horizontal focus.
- const sunUniforms={time:{value:0}};
- const sun=new THREE.Mesh(new THREE.SphereGeometry(8.5,48,32),new THREE.ShaderMaterial({uniforms:sunUniforms,vertexShader:'varying vec3 p;varying vec3 n;void main(){p=position;n=normal;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'uniform float time;varying vec3 p;varying vec3 n;float field(vec3 q){return sin(q.x+sin(q.z*1.3))*sin(q.y+sin(q.x*.8));}void main(){vec3 q=p*.24+vec3(time*.018,0.,time*.009);float f=field(q)*.55+field(q*2.1)*.28+field(q*4.3)*.12+field(q*8.7)*.05;vec3 c=mix(vec3(1.,.34,.035),vec3(1.,.95,.68),.7+f*.3);gl_FragColor=vec4(c*1.4,1.);}'}));sun.position.set(0,12,0);sun.name='Fixed Core';scene.add(sun);
- const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture(),color:'#ffdb88',transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));glow.position.copy(sun.position);glow.scale.set(54,54,1);scene.add(glow);
+ const sunUniforms={time:{value:0},aperture:{value:1}};
+ const sun=new THREE.Mesh(new THREE.SphereGeometry(18,48,32),new THREE.ShaderMaterial({uniforms:sunUniforms,vertexShader:'varying vec3 p;varying vec3 n;void main(){p=position;n=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'uniform float time;uniform float aperture;varying vec3 p;varying vec3 n;float field(vec3 q){return sin(q.x+sin(q.z*1.3))*sin(q.y+sin(q.x*.8));}void main(){vec3 q=p*.24+vec3(time*.018,0.,time*.009);float f=field(q)*.55+field(q*2.1)*.28+field(q*4.3)*.12+field(q*8.7)*.05;vec3 c=mix(vec3(1.,.34,.035),vec3(1.,.95,.68),.7+f*.3);float terminator=(1.-2.*aperture)*sqrt(max(0.,1.-n.y*n.y));float opening=smoothstep(terminator-.012,terminator+.012,n.x);if(aperture<.003)opening=0.;gl_FragColor=vec4(c*1.4*opening,1.);}'}));sun.position.set(0,0,0);sun.name='Fixed Core';scene.add(sun);
+ const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTexture(),color:'#ffdb88',transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));glow.position.copy(sun.position);glow.scale.set(100,100,1);scene.add(glow);
  const beamPos=[],beamColors=[],beamIndices=[],steps=80;
- for(let i=0;i<=steps;i++){const a=rad(-SUNLIGHT_DEGREES/2+i/steps*SUNLIGHT_DEGREES);for(const r of [11,130]){beamPos.push(Math.sin(a)*r,3+9*(1-r/130),Math.cos(a)*r);beamColors.push(1,.78,.32);}if(i<steps){const k=i*2;beamIndices.push(k,k+1,k+2,k+1,k+3,k+2);}}
+ for(let i=0;i<=steps;i++){const a=rad(-SUNLIGHT_DEGREES/2+i/steps*SUNLIGHT_DEGREES);for(const r of [20,RING_RADIUS+30]){beamPos.push(Math.sin(a)*r,0,Math.cos(a)*r);beamColors.push(1,.78,.32);}if(i<steps){const k=i*2;beamIndices.push(k,k+1,k+2,k+1,k+3,k+2);}}
  const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.Float32BufferAttribute(beamPos,3));bg.setAttribute('color',new THREE.Float32BufferAttribute(beamColors,3));bg.setIndex(beamIndices);bg.computeVertexNormals();
  const beam=new THREE.Mesh(bg,new THREE.MeshBasicMaterial({color:'#ffda8a',transparent:true,opacity:.13,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));beam.name='Fixed 70 degree beam';beam.userData.angle=SUNLIGHT_DEGREES;scene.add(beam);
- for(const a of [-35,35]){const points=[polar(a,11).setY(12),polar(a,130).setY(3)];scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:'#eacb8e',transparent:true,opacity:.2})));}
+ const beamEdges=new THREE.Group();scene.add(beamEdges);for(const a of [-35,35]){const points=[polar(a,20).setY(0),polar(a,RING_RADIUS+30).setY(0)];beamEdges.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:'#eacb8e',transparent:true,opacity:.2})));}
  // Quiet survey circles, not stars: Aethergard's night has the far Ring, not a starfield.
- const survey=new THREE.Group();scene.add(survey);for(const r of [132,135]){const points=[];for(let i=0;i<=180;i++)points.push(polar(i*2,r).setY(-14));survey.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:'#587c79',transparent:true,opacity:.15})));}
+ const survey=new THREE.Group();scene.add(survey);for(const r of [RING_RADIUS+30,RING_RADIUS+33]){const points=[];for(let i=0;i<=180;i++)points.push(polar(i*2,r).setY(-60));survey.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:'#587c79',transparent:true,opacity:.15})));}
  for(const p of places.filter(p=>p.angle!=null)){const point=pointOf(p);localPoints.set(p.id,point);}
  // Batch repeated architectural parts to keep cities inexpensive to draw.
- const batches=new Map();for(const item of [...objects.children]){if(!item.isMesh||item.isInstancedMesh)continue;const key=item.geometry.uuid+item.material.uuid;if(!batches.has(key))batches.set(key,[]);batches.get(key).push(item);}
+ const batches=new Map();for(const item of [...objects.children]){if(!item.isMesh||item.isInstancedMesh||item.userData.ringAnimated)continue;const key=item.geometry.uuid+item.material.uuid;if(!batches.has(key))batches.set(key,[]);batches.get(key).push(item);}
  for(const batch of batches.values()){if(batch.length<3)continue;const inst=new THREE.InstancedMesh(batch[0].geometry,batch[0].material,batch.length);batch.forEach((item,i)=>{item.updateMatrix();inst.setMatrixAt(i,item.matrix);objects.remove(item);});inst.instanceMatrix.needsUpdate=true;inst.computeBoundingSphere();objects.add(inst);}
  objects.traverse(object=>{if(object.isMesh){object.castShadow=!object.material.transparent;object.receiveShadow=true;}});terrain.receiveShadow=true;
+ bendWorld(root);
+ const lightMaterials=new Set();root.traverse(o=>{if(o.material){for(const material of (Array.isArray(o.material)?o.material:[o.material]))lightMaterials.add(material);}});for(const material of lightMaterials)nightMaterial(material);
  const colliderGrid=new Map();for(const c of colliders){const key=`${Math.floor(c.x/4)},${Math.floor(c.z/4)}`;if(!colliderGrid.has(key))colliderGrid.set(key,[]);colliderGrid.get(key).push(c);}
  function collides(x,z,y){const gx=Math.floor(x/4),gz=Math.floor(z/4);for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++)for(const c of colliderGrid.get(`${gx+dx},${gz+dz}`)||[])if(y<c.height+1&&Math.hypot(x-c.x,z-c.z)<c.r+.22)return true;return false;}
- function update(time,motion=true){details.update(time,motion);waterMaterial.uniforms.time.value=motion?time:0;sunUniforms.time.value=motion?time:0;for(const fan of spinners)fan.rotation.z=motion?time*.7:0;for(let i=0;i<smoke.length;i++)for(let j=0;j<3;j++){const p=smoke[i],rise=motion?(time*.5+p.offset+j*2)%7:j*2;dummy.position.set(p.x+rise*.16,p.y+rise,p.z);dummy.scale.setScalar(.45+rise*.2);dummy.rotation.set(0,0,0);dummy.updateMatrix();smokeMesh.setMatrixAt(i*3+j,dummy.matrix);}smokeMesh.instanceMatrix.needsUpdate=true;rain.position.y=motion?-(time*5%2):0;for(let i=0;i<bolts.length;i++)bolts[i].material.opacity=motion?.12+Math.pow(Math.max(0,Math.sin(time*.45+i*1.7)),16)*.45:.2;for(let i=0;i<waterfalls.length;i++)waterfalls[i].material.opacity=.35+(motion?Math.sin(time*2+i)*.08:0);}
- return {root,terrain,roads,weather,beam,sun,localPoints,collides,update,stats:{trees:trees.length,buildings:colliders.length,terrainVertices:vertices.length/3},heightAt};
+ function update(time,motion=true){details.update(time,motion);waterMaterial.uniforms.time.value=motion?time:0;sunUniforms.time.value=motion?time:0;for(const fan of spinners)fan.quaternion.copy(fan.userData.frame).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),motion?time*.7:0));for(let i=0;i<smoke.length;i++)for(let j=0;j<3;j++){const p=smoke[i],rise=motion?(time*.5+p.offset+j*2)%7:j*2;dummy.position.set(p.x+rise*.16,p.y+rise,p.z);dummy.scale.setScalar(.45+rise*.2);dummy.rotation.set(0,0,0);dummy.updateMatrix();smokeMesh.setMatrixAt(i*3+j,curveMatrix(dummy.matrix));}smokeMesh.instanceMatrix.needsUpdate=true;const rainAttr=rain.geometry.attributes.position;for(let i=0;i<rainPos.length;i+=3){const v=curvePoint(new THREE.Vector3(rainPos[i],rainPos[i+1]-(motion?time*5%2:0),rainPos[i+2]));rainAttr.setXYZ(i/3,v.x,v.y,v.z);}rainAttr.needsUpdate=true;rain.geometry.computeBoundingSphere();for(let i=0;i<bolts.length;i++)bolts[i].material.opacity=motion?.12+Math.pow(Math.max(0,Math.sin(time*.45+i*1.7)),16)*.45:.2;for(let i=0;i<waterfalls.length;i++)waterfalls[i].material.opacity=.35+(motion?Math.sin(time*2+i)*.08:0);}
+ function observer(point,surface){const light=daylightAt(point);sunUniforms.aperture.value=surface?light.direct:1;glow.material.opacity=surface?Math.pow(light.direct,2)*.75:1;beam.visible=!surface;survey.visible=!surface;beamEdges.visible=!surface;return light;}
+ return {observer,root,terrain,roads,weather,beam,sun,localPoints,collides,update,stats:{trees:trees.length,buildings:colliders.length,terrainVertices:vertices.length/3,rivers:rivers.length,lakes:lakes.length+1,bridges:bridges.length,ringRadius:RING_RADIUS},heightAt};
 }
+
+export function walkHeightAt(x,z){return bridgeAt(x,z)??heightAt(x,z);}
+export function isWater(x,z){if(bridgeAt(x,z)!=null)return false;const c=centres.get('basin');return (Math.hypot(x-c.x,z-c.z)<14&&heightAt(x,z)<3)||!!waterAt(x,z)?.wet;}
