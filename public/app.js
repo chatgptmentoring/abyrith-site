@@ -645,8 +645,8 @@ const REGIONS = [
     text: "A city in a mountain-shadowed valley, distinguished by its mirror-field. The Serpent Roads are the Ring’s road network, rather than a separate place." },
   { x: 60, y: 55, name: "East Tower", tag: "Sunward of Caelmarch",
     text: "A watchtower close to Caelmarch on the side facing the central sun." },
-  { x: 60, y: 22, name: "Titanfall", tag: "Scorched Ridge",
-    text: "An ancient impact site in the Scorched Ridge beside the Wild Kingdom." },
+  { x: 67, y: 21.5, name: "Titanfall", tag: "Impact site · Scorched Ridge",
+    text: "The impact that broke the Ring. It struck here, in the Scorched Ridge beside the Wild Kingdom, and the shattered material thrown out of the rim is still lying where it fell." },
 ];
 
 const ARTEFACTS = [
@@ -858,8 +858,10 @@ const PLATES = {
 (function ringMap() {
   const pins = $("#mapPins");
   if (!pins) return;
+  // Pins near the right edge put their label on the left, or the stage
+  // clips it.
   pins.innerHTML = REGIONS.map((r, i) => `
-    <button class="pin" type="button" data-i="${i}"
+    <button class="pin${r.x > 66 ? " pin--left" : ""}" type="button" data-i="${i}"
             style="left:${r.x}%;top:${r.y}%" aria-label="${r.name}">
       <span class="pin__dot" aria-hidden="true"></span>
       <span class="pin__name">${r.name}</span>

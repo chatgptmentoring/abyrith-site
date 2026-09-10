@@ -414,6 +414,8 @@ em{ font-style:italic; }
 }
 .pin:hover .pin__dot,.pin:focus-visible .pin__dot,.pin.is-on .pin__dot{ transform:scale(1.35); }
 .pin:hover .pin__name,.pin:focus-visible .pin__name,.pin.is-on .pin__name{ opacity:1; transform:translateY(-50%); }
+.pin--left .pin__name{ left:auto; right:calc(50% + 13px); transform:translateY(-50%) translateX(6px); }
+.pin--left:hover .pin__name,.pin--left:focus-visible .pin__name,.pin--left.is-on .pin__name{ transform:translateY(-50%); }
 .pin.is-on .pin__dot{ background:var(--light); box-shadow:0 0 0 3px rgba(224,169,79,.28), 0 0 20px rgba(224,169,79,.95); }
 @media (max-width:640px){ .pin__name{ display:none; } .pin{ padding:10px; } }
 
