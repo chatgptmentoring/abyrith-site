@@ -11,6 +11,49 @@ Static site, no build step. Everything served from `public/`.
 - `public/app.js` — the `CONFIG` block at the top holds the YouTube ID and
   the Supabase credentials. That is the only place those values appear.
 
+## Interactive 3D atlas
+
+`public/atlas/` contains an original Three.js world, served as static ES modules.
+The Three.js 0.186.0 runtime and OrbitControls are vendored with their MIT licence.
+No database, CDN dependency, build step or secret is needed for the atlas.
+
+- `world-data.js`: 33 public geography records; no plot outcomes or spoiler payload.
+- `terrain.js`: curved inner-ring terrain, forests, cities, weather and the fixed Core.
+- `details.js`: original architectural details inspired by the website Archive.
+- `ring.js`: curved coordinates, local surface frames and a 70-degree light mask.
+- `expansion.js` and `waters.js`: five manuscript settlements, the museum exterior,
+  nine tributaries, six lakes in total, five bridges and waterside scenery.
+- `night.js`: gradual desynchronization, quiet mode and opt-in atmospheric audio.
+- `world.js`: eased orbit/zoom, automatic hover descent, terrain walking, collision,
+  keyboard and touch input, accessible catalogue, reduced motion and WebGL fallback.
+- `world.css` and `index.html`: responsive explorer and controls.
+
+Latest author corrections (9 September 2026) override the original chart:
+the light is a fixed 70-degree sector; the world rotates clockwise; sunrise follows
+Aurelion → Solkar → Thunder Plains → Wild Kingdom → Wydin → Sapphire Basin.
+The Thunder Plains divide Solkar and the Wild Kingdom. Twilight City replaces the
+old Serpent Roads marker. Roads are infrastructure. East Tower is inward of Caelmarch
+toward the sun. Titanfall lies beside the Wild Kingdom in the Scorched Ridge.
+
+Coordinates and architectural layouts are artistic reconstructions, not a measured
+survey. `anchor` records use a broader region. Eldwyn, Wydienor and the Darklands
+remain unplaced. Keep author-only revelations and Book One plot content out of all
+public assets; the old plot-bearing data module has been removed completely.
+
+The world turns once per six minutes while walking or hovering. Selecting an orbital
+region pauses rotation for inspection. Visitors can pause, scrub the cycle, face the sun
+or return to dawn. Reduced-motion preferences disable automatic movement. Buildings and
+terrain boundaries constrain walking; hover mode permits travel above them.
+Mobile uses fewer trees, smaller shadow maps and a capped pixel density.
+
+The central light opens from right to left and closes from left to right. Dawn and
+dusk sweep across the surface, with cooler unevenly lit shoulders. Outside the beam,
+surface geometry and remote labels become black. The outer Darklands remain a name
+only. Museum exhibits and story outcomes are excluded.
+
+Serve `public/` with a static HTTP server and open `/atlas/`. GitHub Pages publishes
+the existing website when changes reach `main`.
+
 ## Email signups
 
 Signups land in the `abyrith_subscribers` table in Supabase.

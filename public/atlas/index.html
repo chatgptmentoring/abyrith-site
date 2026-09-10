@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0c191c">
+ <title>Aethergard — Explore the Living Ring | ABYRITH</title>
+ <meta name="description" content="Explore Aethergard in three dimensions. Discover the kingdoms of ABYRITH, fly over the Ring, or walk among its landscapes and cities.">
+ <link rel="canonical" href="https://abyrith.com/atlas/"><link rel="icon" href="/assets/img/favicon-32.png">
+ <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+ <link rel="stylesheet" href="./world.css?v=4">
+ <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+ <script type="module" src="./world.js?v=4"></script>
+</head>
+<body>
+ <a href="#sceneCanvas" class="skip">Skip to world</a>
+ <header class="mast"><a href="/" class="brand"><span aria-hidden="true">◉</span>ABYRITH</a><div class="mast-caption"><i></i> AN ATLAS OF THE LIVING WORLD</div><a class="return" href="/#map">Return to the book ↗</a></header>
+ <main class="shell">
+  <aside id="explorer" class="explorer" aria-label="World explorer">
+   <div class="heading"><div class="eyebrow">ONE WORLD. ONE SUN.</div><h1>Aethergard</h1><p>Every horizon leads <em>somewhere.</em></p></div>
+   <label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" autocomplete="off" placeholder="Find your next horizon…" aria-label="Search places"><kbd>/</kbd></label>
+   <div class="catalog-tabs" role="group" aria-label="Place filters"><button data-filter="all" class="active" aria-pressed="true">All places <span id="recordCount"></span></button><button data-filter="landmark" aria-pressed="false">Landmarks</button></div>
+   <div id="catalog" class="catalog"></div>
+   <article id="detail" class="detail" hidden aria-label="Selected place"></article>
+   <div class="explorer-foot"><span class="source-badge"><i></i> GEOGRAPHY & WORLD LORE</span><button id="aboutButton">A note on this world ↗</button></div>
+  </aside>
+  <section id="viewport" class="viewport" aria-label="Three-dimensional Aethergard world">
+   <canvas id="sceneCanvas" tabindex="0" aria-label="Interactive 3D world. Drag to orbit, scroll or pinch to zoom. Use the Explore controls to hover or walk."></canvas>
+   <div class="atmosphere" aria-hidden="true"></div>
+   <div id="labels" class="labels"></div>
+   <div class="world-title"><p class="eyebrow">THE RING / AN OPEN HORIZON</p><h2 id="viewTitle">A world worth getting lost in.</h2></div>
+   <div class="mode-switch" role="group" aria-label="Exploration mode"><button data-mode="atlas" class="active" aria-pressed="true">◎ Atlas</button><button data-mode="hover" aria-pressed="false">↗ Hover</button><button data-mode="walk" aria-pressed="false">♙ Walk</button></div>
+   <div class="rotation-card"><button id="rotationToggle" aria-label="Pause world rotation" aria-pressed="true">Ⅱ</button><div><p id="rotationLabel" class="eyebrow">70° LIGHT · CLOCKWISE</p><span id="dawnLabel">Dawn over Aurelion</span></div><button id="timeButton" aria-expanded="false" aria-controls="timePanel" aria-label="Adjust world rotation">⌁</button></div>
+   <div id="timePanel" class="time-panel" hidden><label for="rotationRange">World rotation <output id="rotationValue">0°</output></label><input id="rotationRange" type="range" min="0" max="359" value="0"><p>The sun stays fixed. The cycle continues while you walk. A visual circuit takes six minutes.</p><button id="cyclePause">Pause rotation</button><button id="watchSun">Watch the sun</button></div>
+   <div id="welcome" class="welcome"><p class="eyebrow">FROM THE RING TO THE GROUND</p><h2>Don’t just read the map.<br><em>Step inside it.</em></h2><p>Choose a city. Descend through the light.<br>Find your own way across Aethergard.</p><button id="beginExplore">Begin in Aurelion <span>→</span></button></div>
+   <div id="surfaceHUD" class="surface-hud" hidden><span id="surfaceMode">HOVERING</span><span id="heightReadout"></span><button id="cycleButton">Light cycle</button><button id="lookButton">Click to look around</button></div>
+   <div id="crosshair" class="crosshair" hidden aria-hidden="true">+</div>
+   <div class="zoom-controls" role="group" aria-label="Camera controls"><button id="zoomIn" aria-label="Zoom in" title="Zoom in">+</button><output id="zoomReadout" aria-label="View scale">WORLD</output><button id="zoomOut" aria-label="Zoom out" title="Zoom out">−</button><span></span><button id="resetView" aria-label="Return to world view" title="Return to world view">⌖</button><button id="fullscreen" aria-label="Enter fullscreen" title="Fullscreen">⛶</button></div>
+   <div class="bottom-bar"><button id="mobileExplore" aria-controls="explorer" aria-expanded="false">⌕ Explore places</button><div class="layers" role="group" aria-label="World layers"><button id="labelsToggle" aria-label="Place labels" aria-pressed="true" class="active">◇ <span>Places</span></button><button id="roadsToggle" aria-label="Road network" aria-pressed="true" class="active">⌁ <span>Roads</span></button><button id="weatherToggle" aria-label="Weather effects" aria-pressed="true" class="active">☁ <span>Weather</span></button></div><p id="controlsHint">Drag to orbit · Scroll to descend · Right-drag to pan</p><button id="helpButton" aria-label="Exploration controls">?</button></div>
+   <div id="touchControls" class="touch-controls" hidden><div id="joystick" role="group" aria-label="Movement joystick"><span id="joystickKnob"></span></div><div class="altitude-buttons"><button id="ascend" aria-label="Fly up">↑</button><button id="descend" aria-label="Fly down">↓</button></div></div>
+   <div id="loading" class="loading"><div class="loading-orbit"></div><p class="eyebrow">ASSEMBLING AETHERGARD</p><h2>The horizon is taking shape.</h2><p id="loadingText">Mountains, cities, and a thousand glass leaves…</p></div>
+   <div id="fallback" class="fallback" hidden><p class="eyebrow">THE WORLD COULD NOT BE DRAWN</p><h2>This view needs 3D graphics.</h2><p id="fallbackReason">Try a browser with WebGL 2 enabled. The place catalogue remains available.</p><button id="retry">Try again</button><a href="/assets/map/aethergard.webp">View the original chart ↗</a></div>
+   <p id="status" class="sr-only" role="status" aria-live="polite"></p>
+  </section>
+ </main>
+ <dialog id="aboutDialog" aria-labelledby="aboutTitle"><button class="close-dialog" aria-label="Close world notes">×</button><p class="eyebrow">A NOTE ON THE RECONSTRUCTION</p><h2 id="aboutTitle">The book gives us a world.<br>The imagination gives it form.</h2><p>This is an original, explorable 3D interpretation of Aethergard, guided by the manuscript, the world bible, the website’s Archive artwork, and the author’s corrections.</p><p>The Thunder Plains separate Solkar from the Wild Kingdom. Titanfall lies beside the Wild Kingdom in the Scorched Ridge. East Tower stands close to Caelmarch, on its sunward side. Twilight City occupies the former road marker. The Serpent Roads are drawn as infrastructure.</p><p>The inhabited world follows the inner curve of a ring, with cooler shoulders and mountain-bounded edges. The Darklands beyond the edge remain unshown. The world turns clockwise under a fixed <strong>70° beam</strong>. Sunrise follows Aurelion → Solkar → Thunder Plains → Wild Kingdom → Wydin → Sapphire Basin.</p><p>Landscapes, building layouts, dimensions, and smaller details are artistic reconstructions, not measured geography. Unplaced kingdoms remain in the catalogue without invented positions. The Museum of Civilization is shown from outside, without its story content. The night effects are an atmospheric interpretation of desynchronization, without plot revelations. Quiet mode and optional sound are available.</p><p class="credits">World and Archive artwork © Dejan Davcevski.<br>Original 3D reconstruction for ABYRITH.<br><a href="./vendor/THREE-LICENSE.txt">Three.js · MIT licence</a></p></dialog>
+ <dialog id="helpDialog" aria-labelledby="helpTitle"><button class="close-dialog" aria-label="Close controls">×</button><p class="eyebrow">FIND YOUR WAY</p><h2 id="helpTitle">From the world to your footsteps.</h2><dl><dt>Atlas</dt><dd>Drag to orbit. Scroll, pinch, or use + / − to zoom. Right-drag to pan. Select a place to centre it.</dd><dt>Descend</dt><dd>Zoom close to the terrain to enter hover mode automatically. Or choose Hover or Walk at any time.</dd><dt>Hover</dt><dd>WASD or arrow keys to move. E / Space to rise; Q to descend. Hold Shift to travel faster. Click “look around” for mouse look, or drag the view.</dd><dt>Walk</dt><dd>WASD or arrow keys to move along the ground. Buildings and the edge of the Ring stop your footsteps. Drag or use mouse look to turn.</dd><dt>On a phone</dt><dd>Use the movement pad with your left thumb and drag the scenery with your right. The up/down controls change altitude while hovering.</dd><dt>Return</dt><dd>Escape releases mouse look. Atlas or ⌖ returns you to the world. The light cycle continues while you walk or hover. Light cycle controls let you pause or choose a phase. Return to dawn brings back the light.</dd></dl></dialog>
+ <noscript><div class="fallback"><h2>JavaScript is needed to explore this world.</h2><a href="/assets/map/aethergard.webp">View the original chart</a></div></noscript>
+</body></html>
