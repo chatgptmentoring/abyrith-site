@@ -634,6 +634,130 @@ input.is-bad{ border-color:var(--rift); }
 .place__text{ font-size:.94rem; line-height:1.6; color:var(--bone-dim); margin:0; }
 @media (max-width:700px){ .place--wide{ grid-column:span 1; } .place--wide img{ aspect-ratio:4/3; } }
 
+/* ── Archive plates ─────────────────────────────────────── */
+.plates{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:1.1rem; grid-auto-flow:dense; margin-bottom:1rem;
+}
+.plate{
+  display:flex; flex-direction:column; text-align:left; padding:0; cursor:zoom-in;
+  border:1px solid var(--line); background:rgba(16,16,24,.5); border-radius:2px;
+  overflow:hidden; transition:border-color .45s,transform .55s var(--ease),box-shadow .55s;
+  color:inherit; font:inherit;
+}
+.plate:hover,.plate:focus-visible{
+  border-color:var(--line-hot); transform:translateY(-4px); outline:none;
+  box-shadow:0 22px 54px -24px rgba(0,0,0,.95),0 0 38px -16px rgba(216,32,44,.42);
+}
+.plate--wide{ grid-column:span 2; }
+.plate__frame{ position:relative; overflow:hidden; display:block; }
+.plate img{
+  width:100%; aspect-ratio:4/3; object-fit:cover; display:block;
+  filter:grayscale(.3) brightness(.82) contrast(1.03);
+  transition:filter .6s var(--ease),transform .9s var(--ease);
+}
+.plate--wide img{ aspect-ratio:16/9; }
+.plate:hover img,.plate:focus-visible img{ filter:none; transform:scale(1.045); }
+/* The magnifier hint that appears on hover */
+.plate__lens{
+  position:absolute; right:12px; bottom:12px; width:34px; height:34px; border-radius:50%;
+  border:1px solid rgba(233,229,220,.5); background:rgba(6,6,10,.6); backdrop-filter:blur(4px);
+  opacity:0; transform:scale(.8); transition:opacity .35s,transform .35s;
+}
+.plate__lens::before,.plate__lens::after{ content:""; position:absolute; background:var(--bone); }
+.plate__lens::before{ left:9px; top:16px; width:16px; height:1px; }
+.plate__lens::after{ left:16px; top:9px; width:1px; height:16px; }
+.plate:hover .plate__lens,.plate:focus-visible .plate__lens{ opacity:1; transform:scale(1); }
+.plate__cap{ display:block; padding:1.15rem 1.25rem 1.35rem; border-top:1px solid var(--line); }
+.plate__tag{
+  display:block; font-family:var(--mono); font-size:.55rem; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--light); opacity:.9; margin-bottom:.45rem;
+}
+.plate__name{
+  display:block; font-family:var(--display); font-size:1.18rem; font-weight:700;
+  letter-spacing:.05em; margin-bottom:.55rem; color:var(--bone);
+}
+.plate__text{ display:block; font-size:.93rem; line-height:1.6; color:var(--bone-dim); }
+@media (max-width:700px){ .plate--wide{ grid-column:span 1; } .plate--wide img{ aspect-ratio:4/3; } }
+
+/* ── Plate viewer ───────────────────────────────────────── */
+.zoom{
+  position:fixed; inset:0; z-index:240; background:#040407;
+  display:flex; flex-direction:column; touch-action:none;
+}
+.zoom[hidden]{ display:none; }
+.zoom__stage{
+  flex:1 1 auto; min-height:0; position:relative; overflow:hidden;
+  cursor:grab; touch-action:none;
+}
+.zoom.is-zoomed .zoom__stage:active{ cursor:grabbing; }
+/* Absolutely centred rather than grid-centred: a percentage max-height
+   needs a definite container height, and an auto grid row is not one —
+   it grows to the image and the constraint is silently dropped. */
+.zoom__img{
+  position:absolute; inset:0; margin:auto;
+  max-width:100%; max-height:100%; width:auto; height:auto;
+  will-change:transform; transform-origin:center center;
+  user-select:none; -webkit-user-drag:none;
+}
+
+/* A close control that is genuinely tappable: 52px, above everything,
+   and clear of notches and rounded corners on phones. */
+.zoom__close{
+  position:fixed; z-index:250;
+  top:calc(env(safe-area-inset-top, 0px) + 10px);
+  right:calc(env(safe-area-inset-right, 0px) + 10px);
+  width:52px; height:52px; display:grid; place-items:center;
+  border:1px solid rgba(233,229,220,.28); border-radius:50%;
+  background:rgba(10,10,16,.82); backdrop-filter:blur(8px);
+  color:var(--bone); font-size:1.8rem; line-height:1; cursor:pointer;
+  transition:border-color .3s,background .3s,transform .3s;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+}
+.zoom__close span{ pointer-events:none; margin-top:-3px; }
+.zoom__close:hover,.zoom__close:focus-visible{
+  border-color:var(--rift-hot); background:rgba(216,32,44,.22); transform:scale(1.06);
+}
+
+.zoom__bar{
+  flex:none; display:flex; align-items:flex-end; gap:1.4rem; flex-wrap:wrap;
+  padding:1rem var(--gut) calc(env(safe-area-inset-bottom, 0px) + 1rem);
+  border-top:1px solid var(--line); background:rgba(6,6,10,.9);
+}
+.zoom__meta{ flex:1 1 320px; min-width:0; }
+.zoom__name{
+  font-family:var(--display); font-size:1.15rem; font-weight:700; letter-spacing:.05em;
+  margin:0 0 .4rem; color:var(--bone);
+}
+.zoom__text{ margin:0; font-size:.92rem; line-height:1.55; color:var(--bone-dim); max-width:70ch; }
+.zoom__ctrl{ display:flex; align-items:center; gap:.5rem; flex:none; }
+.zoom__ctrl button{
+  min-width:44px; height:44px; padding:0 .8rem; border:1px solid var(--line);
+  background:rgba(16,16,24,.8); color:var(--bone); cursor:pointer; border-radius:1px;
+  font-family:var(--mono); font-size:1rem; line-height:1; transition:border-color .3s,background .3s;
+  touch-action:manipulation;
+}
+.zoom__ctrl button:hover{ border-color:var(--line-hot); background:rgba(216,32,44,.16); }
+.zoom__reset{ font-size:.62rem !important; letter-spacing:.16em; text-transform:uppercase; }
+.zoom__lvl{
+  font-family:var(--mono); font-size:.66rem; letter-spacing:.12em; color:var(--ash);
+  min-width:52px; text-align:center;
+}
+.zoom__hint{
+  position:absolute; left:0; right:0; bottom:auto;
+  top:calc(env(safe-area-inset-top, 0px) + 22px);
+  margin:0; text-align:center; pointer-events:none;
+  font-family:var(--mono); font-size:.58rem; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--ash); opacity:.75; transition:opacity .4s;
+}
+.zoom.is-zoomed .zoom__hint{ opacity:0; }
+@media (max-width:640px){
+  .zoom__bar{ gap:.9rem; padding-inline:1rem; }
+  .zoom__name{ font-size:1rem; }
+  .zoom__text{ font-size:.86rem; max-height:5.2em; overflow-y:auto; }
+  .zoom__hint{ font-size:.52rem; left:70px; right:70px; }
+}
+
 /* ── Lightbox ───────────────────────────────────────────── */
 .lb{
   position:fixed; inset:0; z-index:200; background:rgba(4,4,7,.95);
@@ -704,15 +828,28 @@ input.is-bad{ border-color:var(--rift); }
   .branchtext::after{ transform:translate(5px,3px); animation:none; }
 }
 
+/* Fixed, not absolute: on a phone the panel scrolls, and an absolutely
+   positioned close scrolls away with it. 52px, above the content, and
+   clear of the notch. */
 .lb__close{
-  position:absolute; top:1.1rem; right:1.4rem; width:44px; height:44px; background:none;
-  border:1px solid var(--line); color:var(--bone); font-size:1.5rem; line-height:1; cursor:pointer;
-  transition:border-color .3s,background .3s;
+  position:fixed; z-index:210;
+  top:calc(env(safe-area-inset-top, 0px) + 10px);
+  right:calc(env(safe-area-inset-right, 0px) + 10px);
+  width:52px; height:52px; display:grid; place-items:center;
+  border:1px solid rgba(233,229,220,.28); border-radius:50%;
+  background:rgba(10,10,16,.82); backdrop-filter:blur(8px);
+  color:var(--bone); font-size:1.7rem; line-height:1; cursor:pointer;
+  transition:border-color .3s,background .3s,transform .3s;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;
 }
-.lb__close:hover{ border-color:var(--line-hot); background:rgba(216,32,44,.12); }
+.lb__close:hover,.lb__close:focus-visible{
+  border-color:var(--rift-hot); background:rgba(216,32,44,.22); transform:scale(1.06);
+}
 @media (max-width:760px){
   .lb__inner{ grid-template-columns:1fr; max-height:none; overflow-y:auto; align-content:start; }
   .lb__inner img{ max-height:48vh; }
+  /* Keep the first line of the record out from under the close button. */
+  .lb{ padding-top:calc(env(safe-area-inset-top, 0px) + 74px); }
 }
 
 /* ── The Screening (modal) ──────────────────────────────── */

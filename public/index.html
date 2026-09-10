@@ -375,6 +375,33 @@
     </div>
 
     <div class="places" id="artefacts"></div>
+
+    <div class="places-head reveal">
+      <p class="kicker">Recovered plates</p>
+      <h3 class="places-title">The Blind Hunter</h3>
+      <p class="places-intro">
+        What he carries, what he wears, and the one afternoon he keeps going back to.
+        Tap any plate to open it and look closer.
+      </p>
+    </div>
+    <div class="plates" id="platesHunter"></div>
+
+    <div class="places-head reveal">
+      <p class="kicker">Recovered plates</p>
+      <h3 class="places-title">Those who were there</h3>
+      <p class="places-intro">Faces the Archive still holds a clean image of.</p>
+    </div>
+    <div class="plates" id="platesPeople"></div>
+
+    <div class="places-head reveal">
+      <p class="kicker">Recovered plates</p>
+      <h3 class="places-title">Cities of the Ring</h3>
+      <p class="places-intro">
+        Above and below the ramparts — the capital, the trade roads, and the places
+        built out of what the foundries could not use.
+      </p>
+    </div>
+    <div class="plates" id="platesCities"></div>
   </div>
 </section>
 
@@ -441,6 +468,31 @@
       <p class="lb__branch" id="lbBranch" hidden></p>
     </div>
   </div>
+</div>
+
+<!-- ══════════════ Plate viewer ══════════════ -->
+<div class="zoom" id="zoom" hidden role="dialog" aria-modal="true" aria-label="Archive plate">
+  <button class="zoom__close" id="zoomClose" type="button" aria-label="Close plate">
+    <span aria-hidden="true">&times;</span>
+  </button>
+
+  <div class="zoom__stage" id="zoomStage">
+    <img class="zoom__img" id="zoomImg" alt="" draggable="false">
+  </div>
+
+  <div class="zoom__bar">
+    <div class="zoom__meta">
+      <p class="zoom__name" id="zoomName"></p>
+      <p class="zoom__text" id="zoomText"></p>
+    </div>
+    <div class="zoom__ctrl">
+      <button type="button" id="zoomOut" aria-label="Zoom out">&minus;</button>
+      <span class="zoom__lvl" id="zoomLvl">100%</span>
+      <button type="button" id="zoomIn" aria-label="Zoom in">&plus;</button>
+      <button type="button" id="zoomReset" class="zoom__reset">Reset</button>
+    </div>
+  </div>
+  <p class="zoom__hint" id="zoomHint">Scroll or pinch to zoom · drag to move</p>
 </div>
 
 <!-- ══════════════ The Screening ══════════════ -->

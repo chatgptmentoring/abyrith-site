@@ -658,6 +658,199 @@ const ARTEFACTS = [
     text: "Two farmers on a hillside outside Ashberry, working for whatever the season gave them and charged the same extortion rate as merchants who could afford it. Vira does not talk about them. She just keeps the file." },
 ];
 
+/* ═══════════ Plate viewer — zoom and pan ═══════════ */
+let openZoom = () => {};
+
+(function zoomViewer() {
+  const el = $("#zoom");
+  if (!el) return;
+  const stage = $("#zoomStage"), img = $("#zoomImg"), lvl = $("#zoomLvl");
+  const MIN = 1, MAX = 6;
+  let scale = 1, tx = 0, ty = 0, lastFocus = null;
+
+  const apply = () => {
+    // Never let the image be dragged so far it leaves the stage empty.
+    const r = stage.getBoundingClientRect();
+    const limX = Math.max(0, (r.width * scale - r.width) / 2);
+    const limY = Math.max(0, (r.height * scale - r.height) / 2);
+    tx = utils && utils.clamp ? utils.clamp(tx, -limX, limX) : Math.max(-limX, Math.min(limX, tx));
+    ty = utils && utils.clamp ? utils.clamp(ty, -limY, limY) : Math.max(-limY, Math.min(limY, ty));
+    img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    lvl.textContent = Math.round(scale * 100) + "%";
+    el.classList.toggle("is-zoomed", scale > 1.01);
+  };
+
+  const zoomTo = (next, cx, cy) => {
+    const r = stage.getBoundingClientRect();
+    next = Math.max(MIN, Math.min(MAX, next));
+    if (cx != null) {
+      // Keep the point under the cursor/fingers pinned while scaling.
+      const ox = cx - r.left - r.width / 2;
+      const oy = cy - r.top - r.height / 2;
+      const k = next / scale;
+      tx = ox - (ox - tx) * k;
+      ty = oy - (oy - ty) * k;
+    }
+    scale = next;
+    if (scale <= 1.01) { scale = 1; tx = 0; ty = 0; }
+    apply();
+  };
+
+  openZoom = (plate) => {
+    lastFocus = document.activeElement;
+    img.src = `/assets/archive/full/${plate.slug}.webp`;
+    img.alt = plate.name;
+    $("#zoomName").textContent = plate.name;
+    $("#zoomText").textContent = plate.text;
+    scale = 1; tx = 0; ty = 0; apply();
+    el.hidden = false;
+    document.body.style.overflow = "hidden";
+    $("#zoomClose").focus();
+    if (MOTION) {
+      animate(el, { opacity: [0, 1], duration: 240, ease: "linear" });
+      animate(img, { opacity: [0, 1], scale: [0.94, 1], duration: 620, ease: "out(3)" });
+    }
+  };
+
+  const close = () => {
+    el.hidden = true;
+    document.body.style.overflow = "";
+    img.removeAttribute("src");
+    if (lastFocus) lastFocus.focus();
+  };
+
+  $("#zoomClose").addEventListener("click", close);
+  $("#zoomIn").addEventListener("click", () => zoomTo(scale * 1.5));
+  $("#zoomOut").addEventListener("click", () => zoomTo(scale / 1.5));
+  $("#zoomReset").addEventListener("click", () => zoomTo(1));
+  addEventListener("keydown", (e) => {
+    if (el.hidden) return;
+    if (e.key === "Escape") close();
+    if (e.key === "+" || e.key === "=") zoomTo(scale * 1.5);
+    if (e.key === "-") zoomTo(scale / 1.5);
+    if (e.key === "0") zoomTo(1);
+  });
+  // Backdrop click closes, but only when the image is not being explored.
+  stage.addEventListener("click", (e) => { if (e.target === stage && scale === 1) close(); });
+
+  stage.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    zoomTo(scale * (e.deltaY < 0 ? 1.16 : 1 / 1.16), e.clientX, e.clientY);
+  }, { passive: false });
+
+  img.addEventListener("dblclick", (e) => {
+    e.preventDefault();
+    zoomTo(scale > 1.01 ? 1 : 2.6, e.clientX, e.clientY);
+  });
+
+  /* — Pointer drag to pan, and two-finger pinch — */
+  const pts = new Map();
+  let startDist = 0, startScale = 1, panning = false, lastX = 0, lastY = 0;
+
+  stage.addEventListener("pointerdown", (e) => {
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    stage.setPointerCapture(e.pointerId);
+    if (pts.size === 2) {
+      const [a, b] = [...pts.values()];
+      startDist = Math.hypot(a.x - b.x, a.y - b.y);
+      startScale = scale;
+      panning = false;
+    } else if (scale > 1.01) {
+      panning = true; lastX = e.clientX; lastY = e.clientY;
+    }
+  });
+
+  stage.addEventListener("pointermove", (e) => {
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pts.size === 2 && startDist) {
+      const [a, b] = [...pts.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      zoomTo(startScale * (d / startDist), (a.x + b.x) / 2, (a.y + b.y) / 2);
+      return;
+    }
+    if (panning) {
+      tx += e.clientX - lastX; ty += e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      apply();
+    }
+  });
+
+  const release = (e) => {
+    pts.delete(e.pointerId);
+    if (pts.size < 2) startDist = 0;
+    if (pts.size === 0) panning = false;
+  };
+  stage.addEventListener("pointerup", release);
+  stage.addEventListener("pointercancel", release);
+})();
+
+/* ═══════════ Archive plates ═══════════ */
+const PLATES = {
+  platesHunter: [
+    { slug: "pale-verdict", name: "Pale Verdict", tag: "Carried",
+      text: "Porous grey, badly balanced, and by every honest measure a bludgeon rather than a sword. Erik's father carried it for twenty cycles and took the mockery of men with brighter steel. He said it was heavy because it wanted to speak, and that it was waiting." },
+    { slug: "the-mercy-visir", name: "The Mercy Visir", tag: "Worn",
+      text: "Rough black wool, torn from a High Captain's cape and knotted at the back of the skull. He tied it on in his dead parents' house and has not taken it off since. The name is his own." },
+    { slug: "the-mark", name: "The Mark", tag: "Placement · surface · designation",
+      text: "Burned into the back of the neck at six cycles and read for the rest of a life. Designation, sub-routine, destiny path. Erik's reads: Sun Guard — Command and Protection — Service Until Cessation." },
+    { slug: "eriks-memory", name: "Erik's memory", tag: "Before any of it", wide: true,
+      text: "Two Sun Guards in a meadow, a fire going, an apple in the air, and nowhere urgent to be. He returns to this one more than he admits." },
+    { slug: "butchers-rage", name: "The blindfold, off", tag: "Restricted",
+      text: "There is a version of this man with the Mercy Visir in his fist. He does not talk about what happens then, and neither will this file." },
+    { slug: "lumen-tent", name: "The Lumen Tent", tag: "Field equipment",
+      text: "Conductive thread woven through the canvas, holding a day's worth of light after the light has gone, with a stabilization crystal at the centre to keep it steady. You do not travel at night. You can sit one out, if you brought the day with you." },
+  ],
+  platesPeople: [
+    { slug: "the-third-squadron", name: "The Third Squadron", tag: "Before deployment", wide: true,
+      text: "Varris with his stomach running early, Silas already working the odds, Kael terrified of tripping in front of a crowd. An hour with nothing in it — the rarest thing a soldier owns." },
+    { slug: "princess-aelys", name: "Princess Aelys", tag: "The Sapphire Basin",
+      text: "High Princess of the Sapphire Basin, riding home to Aurelion under Sun Guard escort. She does not complain about the dust or the hard rations, and she keeps pace at the front. The Solcryst at her throat is worth more than the men guarding it." },
+    { slug: "vira-north-eye", name: "Vira at the North Eye", tag: "Luxharrow",
+      text: "Her workstation. Every Defined citizen in the sector is one gold spark on that table. Underneath them she keeps a second file nobody asked her for — because if you write a thing down, it becomes real." },
+  ],
+  platesCities: [
+    { slug: "street-view-aurelion", name: "The view down any avenue", tag: "Aurelion",
+      text: "Look along a street in the capital and the world does not go away from you — it goes up. The Ring climbs into its own sky, and on a clear turn you can make out the weather on the far side of it." },
+    { slug: "aurelion-outer-tier", name: "The Outer Tier", tag: "Aurelion",
+      text: "Where the capital stops being a monument and starts being somewhere people live. Carts, awnings, wet stone, and the Golden Rampart putting all of it in shade." },
+    { slug: "the-grand-archives", name: "The Grand Archives", tag: "Aurelion",
+      text: "Every record the Kingdom admits to, held as light in sealed vials and shelved by the thousand. Anything older than nine thousand cycles is simply not there, and no Lector has ever been asked why in writing." },
+    { slug: "luxharrow", name: "Luxharrow", tag: "Trade city", wide: true,
+      text: "A city that runs on other people's cargo. The market never fully closes and the Gilded Lung never closes at all — which is where you go if you want the rumour before the Archive gets it." },
+    { slug: "slag-heap", name: "The Slag-Heap", tag: "Caelmarch",
+      text: "Clinging to the outside of the foundry wall: a ravine of everything Caelmarch could not use, with homes built down into it. The city does not count the people here. For some of them that was the appeal." },
+    { slug: "the-white-horse", name: "The white horse", tag: "West Gate", wide: true,
+      text: "It came back to the gate on its own. The Archive has logged the plaza, the frost, and what was left lying on the stones. It has not logged an explanation." },
+  ],
+};
+
+(function plates() {
+  Object.entries(PLATES).forEach(([id, list]) => {
+    const grid = $("#" + id);
+    if (!grid) return;
+    grid.innerHTML = list.map((p, i) => `
+      <button class="plate${p.wide ? " plate--wide" : ""} reveal" type="button"
+              data-grid="${id}" data-i="${i}" data-d="${i % 3}">
+        <span class="plate__frame">
+          <img src="/assets/archive/${p.slug}.webp" alt="${p.name}" loading="lazy" decoding="async">
+          <span class="plate__lens" aria-hidden="true"></span>
+        </span>
+        <span class="plate__cap">
+          <span class="plate__tag">${p.tag}</span>
+          <span class="plate__name">${p.name}</span>
+          <span class="plate__text">${p.text}</span>
+        </span>
+      </button>`).join("");
+    watch($$(".plate", grid));
+    grid.addEventListener("click", (e) => {
+      const b = e.target.closest(".plate");
+      if (b) openZoom(PLATES[b.dataset.grid][+b.dataset.i]);
+    });
+  });
+})();
+
 (function ringMap() {
   const pins = $("#mapPins");
   if (!pins) return;
